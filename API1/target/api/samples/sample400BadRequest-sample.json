@@ -1,0 +1,16 @@
+{
+  "responseInfo": {
+    "id": "1234",
+    "code": "5432",
+    "status": "4XX_CLIENT_ERROR",
+    "message": "Field Validation Errors",
+    "description": "There are field validation errors",
+    "reasons": [
+      {
+        "field": "Insured Name",
+        "message": "Insured Name is required",
+        "code": "FIELD_REQUIRED"
+      }
+    ]
+  }
+}

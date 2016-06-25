@@ -1,0 +1,63 @@
+{
+  "title": "Dessert",
+  "description": "",
+  "javaType": "nz.co.iag.model.consumer.json.Dessert",
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "definitions": {
+    "Ingredients": {
+      "title": "Ingredients",
+      "description": "",
+      "javaType": "nz.co.iag.model.consumer.json.Ingredients",
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "amount": {
+          "description": "The amount of the ingredient",
+          "type": "string"
+        }
+      },
+      "required": [
+        "amount"
+      ]
+    },
+    "Orange": {
+      "title": "Orange",
+      "description": "",
+      "javaType": "nz.co.iag.model.consumer.json.Orange",
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "species": {
+          "description": "The type of orange",
+          "type": "string"
+        }
+      },
+      "required": [
+        "species"
+      ]
+    },
+    "Dessert": {
+      "$ref": "#"
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "oranges": {
+      "description": "",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Orange"
+      }
+    },
+    "ingredients": {
+      "description": "",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Ingredients"
+      }
+    }
+  }
+}

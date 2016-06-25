@@ -1,0 +1,11 @@
+{
+  "apple": {
+    "taste": "Sweet",
+    "species": "Macintosh"
+  },
+  "oranges": [
+    {
+      "species": "Valencia"
+    }
+  ]
+}

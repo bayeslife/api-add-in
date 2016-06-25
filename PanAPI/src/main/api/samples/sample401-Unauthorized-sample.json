@@ -1,0 +1,8 @@
+{
+  "responseInfo":{
+    "id": "{guid}",
+    "status": "4XX_CLIENT_ERROR",
+    "message": "Unauthorized",
+    "description": "Bad or expired token"
+  }
+}

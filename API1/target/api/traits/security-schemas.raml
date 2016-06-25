@@ -1,0 +1,51 @@
+- JWT:
+    description: |
+      IAG uses JSON Web Tokens (JWT) to authenticate requests
+    type: x-jwtAuth
+    describedBy:
+      headers:
+        Authorization:
+          required: true
+          description: |
+            Used to send a valid JWT access token.
+          type: string
+          example: |
+             Bearer  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjEzODY4OTkxMzEsImlzcyI6ImppcmE6MTU0ODk1OTUiLCJxc2giOiI4MDYzZmY0Y2ExZTQxZGY3YmM5MGM4YWI2ZDBmNjIwN2Q0OTFjZjZkYWQ3YzY2ZWE3OTdiNDYxNGI3MTkyMmU5IiwiaWF0IjoxMzg2ODk4OTUxfQ.uKqU9dTB6gKwG6jQCuXYAiMNdfNRw98Hw_IWuA5MaMo
+      responses:
+        401:
+          description: |
+            **Unauthorized**
+            Bad or expired token. To fix it, re-authenticate the user.
+            *For example:* The user authentication failed, or the authentication token was not from a trusted Identity Provider
+          body:
+            application/json:
+              schema: !include ../schemas/ErrorResponse.json
+              example: |
+                {
+                  "responseInfo":{
+                    "id": "{guid}",
+                    "code" : "0401",
+                    "status": "ERROR",
+                    "message": "Unauthorized",
+                    "description": "Bad or expired token"
+                  }
+                }
+        403:
+          description: |
+            **Forbidden**
+            Bad authentication (JWT) token. The user does not have the correct permissions to access this resource
+            Re-authenticating the user won't help here.
+            *For example:* wrong consumer key, bad nonce, expired timestamp, etc
+          body:
+            application/json:
+              schema: !include ../schemas/ErrorResponse.json
+              example: |
+                {
+                  "responseInfo":{
+                    "id": "{guid}",
+                    "code" : "0403",
+                    "status": "ERROR",
+                    "message": "Forbidden",
+                    "description": "The user does not have the correct permissions to access this resource"
+                  }
+                }

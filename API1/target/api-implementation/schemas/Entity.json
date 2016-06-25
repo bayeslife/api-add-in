@@ -1,0 +1,57 @@
+{
+ "title": "Entity",
+ "description": "",
+ "javaType": "nz.co.api.API.Technical.API1.Entity",
+ "$schema": "http://json-schema.org/draft-04/schema#",
+ "definitions": {
+  "Orange": {
+   "title": "Orange",
+   "description": "",
+   "javaType": "nz.co.api.API.Technical.API1.Orange",
+   "$schema": "http://json-schema.org/draft-04/schema#",
+   "type": "object",
+   "additionalProperties": false,
+   "properties": {
+    "species": {
+     "description": "The type of orange",
+     "type": "string"
+    }
+   }
+  },
+  "Apple": {
+   "title": "Apple",
+   "description": "",
+   "javaType": "nz.co.api.API.Technical.API1.Apple",
+   "$schema": "http://json-schema.org/draft-04/schema#",
+   "type": "object",
+   "additionalProperties": false,
+   "properties": {
+    "taste": {
+     "description": "The taste of the apple",
+     "type": "string"
+    },
+    "species": {
+     "description": "The type of apple",
+     "type": "string"
+    }
+   }
+  },
+  "Entity": {
+   "$ref": "#"
+  }
+ },
+ "type": "object",
+ "additionalProperties": false,
+ "properties": {
+  "apple": {
+   "$ref": "#/definitions/Apple"
+  },
+  "oranges": {
+   "description": "",
+   "type": "array",
+   "items": {
+    "$ref": "#/definitions/Orange"
+   }
+  }
+ }
+}

@@ -1,0 +1,9 @@
+{
+  "responseInfo":{
+    "id": "{guid}",
+    "code": "0406",
+    "status": "4XX_CLIENT_ERROR",
+    "message": "Not Acceptable",
+    "description": "The requested resource is only capable of generating content not acceptable according to the Accept headers sent in the request"
+  }
+}
