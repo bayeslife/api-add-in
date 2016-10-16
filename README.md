@@ -29,29 +29,6 @@ Videos introducing this functionality.
 
  - [Use](./Using.md)
 
-# FAQs
- - The extensions by default export into d:\generated folder on your file system.
-  - See the FileManager.cs where you can change this.
-
-- Be sure to set your diagrams to a stereotype of APIDiagram, SchemaDiagram or SampleDiagram to enable the appropriate menus.
-
-- Is there a sample EAP project file available
-  - Yes I can send you a sample EAP project.  Get in contact with me at phil@xceptionale.com.
-
-
-- How is the Add In used.
-  - This AddIn is used in conjunction with the maven pom file to build and validate the exported raml,json schema and json files.  
-    - It builds a library of reusable traits, resource types into a jar. (See the PanAPI directory)
-    - It copes the src into target and extracts the PanApi artefacts.
-    - Using a number of tools it validates the raml, validates the samples against the schema and then build html documentation, java pojo jars and raml.zip files.
-    - I have not included each of the tools used.
-
-- How are changes made
-  - Make the changes to the source
-  - Build in Visual studio
-  - Then restart EA.
-
-  - There are unit tests to be able to validate changes before having to run in Spark EA.
 
 
 # Thanks
