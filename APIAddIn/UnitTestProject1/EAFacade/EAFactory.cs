@@ -44,13 +44,14 @@ namespace UnitTestProject1.EAFacade
             return client;
         }
 
-        public EAFactory addAttribute(string name, string eatype,string lowerBound = "0",string upperBound = "1")        
+        public EAFactory addAttribute(string name, string eatype,string lowerBound = "0",string upperBound = "1", string def = "Value")        
         {
             object a = this.clientElement.Attributes.AddNew(name, APIAddinClass.EA_TYPE_ATTRIBUTE);
             EA.Attribute attr = (EA.Attribute)a;
             attr.Type = eatype;
             attr.LowerBound = lowerBound;
             attr.UpperBound = upperBound;
+            attr.Default = def;
             return this;
         }
 

@@ -25,24 +25,41 @@ namespace APIAddIn
             this.path = path;
         }
 
-        public string apiDirectoryPath(string apiName)
+        public string apiDirectoryPath(string apiName,double version)
         {
-            string result = path + @"\" + apiName+ @"\src\main\api\";
-            if (logger != null)
-                logger.log("FilePath:" + result);
+            string result;
+            if (version == APIAddinClass.RAML_0_8)
+                result = path + @"\" + apiName+ @"\src\main\api\";
+            else
+            {
+                String versionName = version.ToString("F1");
+                result = path + @"\" + apiName + @"\src\main\api\";
+                //result = path + @"\" + apiName + @"\src\main\api-" + versionName + @"\";
+            }
+                
+            //if (logger != null)
+            //    logger.log("FilePath:" + result);
             return result;
         }
-        public string apiPath(string apiName)
+        public string apiPath(string apiName,double version)
         {
-            string result = apiDirectoryPath(apiName) + "api.raml";
-            if (logger != null)
-                logger.log("FilePath:" + result);
-            return result;
+            string result = apiDirectoryPath(apiName, version);
+            if (version == APIAddinClass.RAML_0_8)
+                result =  result + "api.raml";
+            else
+            {
+                String versionName = version.ToString("F1");
+                result = result + "api-" + versionName + ".raml";
+            }
+                
+                ////if (logger != null)
+                ////    logger.log("FilePath:" + result);
+                return result;
         }
 
         public string samplePath(string sampleName,string classifierName)
         {
-            string result = apiDirectoryPath(apiPackageName) + @"samples\" + sampleName + "-sample."+classifierName+".json";
+            string result = apiDirectoryPath(apiPackageName, APIAddinClass.RAML_0_8) + @"samples\" + sampleName + "-sample."+classifierName+".json";
             if (logger != null)
                 logger.log("FilePath:" + result);
             return result;
@@ -50,6 +67,13 @@ namespace APIAddIn
         public string sampleIncludePath(string sampleName,string classifierName)
         {
             string result = "samples/" + sampleName + "-sample."+classifierName+".json";
+            if (logger != null)
+                logger.log("FilePath:" + result);
+            return result;
+        }
+        public string examplesPath(string sampleName)
+        {
+            string result = "examples/" + sampleName + ".raml";
             if (logger != null)
                 logger.log("FilePath:" + result);
             return result;
@@ -63,7 +87,7 @@ namespace APIAddIn
         }
         public string schemaPath(string schemaName)
         {
-            string result = apiDirectoryPath(apiPackageName) + @"schemas\" + schemaName + ".json";
+            string result = apiDirectoryPath(apiPackageName, APIAddinClass.RAML_0_8) + @"schemas\" + schemaName + ".json";
             if (logger != null)
                 logger.log("FilePath:" + result);
             return result;
@@ -84,15 +108,15 @@ namespace APIAddIn
         }
         
 
-        public void setup()
+        public void setup(double version)
         {
-            string directorypath = apiDirectoryPath(this.apiPackageName);
-            if (logger != null)
-                logger.log("Creating directory:" + directorypath);
+            string directorypath = apiDirectoryPath(this.apiPackageName,version);
+            //if (logger != null)
+            //    logger.log("Creating directory:" + directorypath);
             System.IO.Directory.CreateDirectory(directorypath);
             string schemapath = directorypath + @"\schemas";
-            if (logger != null)
-                logger.log("Creating directory:" + schemapath);
+            //if (logger != null)
+            //    logger.log("Creating directory:" + schemapath);
             System.IO.Directory.CreateDirectory(schemapath);
             string samplepath = directorypath + @"\samples";
             System.IO.Directory.CreateDirectory(samplepath);
@@ -110,10 +134,9 @@ namespace APIAddIn
         {
             return System.IO.File.Exists(schemaPath(schemaName));
         }
-
-        public void exportAPI(string apiName, string content)
+        public void exportAPI(string apiName, double version,string content)
         {
-            string fullpath = apiPath(apiName);
+            string fullpath = apiPath(apiName,version);
             if(logger!=null)
                 logger.log(fullpath);
             System.IO.File.WriteAllText(fullpath, content);

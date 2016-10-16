@@ -25,6 +25,9 @@ Videos introducing this functionality.
 - You should see the extension menus in Extensions-API MDG.
   -   The extensions are context sensitive
 
+# Using this add in
+
+ - [Use](./Using.md)
 
 # FAQs
  - The extensions by default export into d:\generated folder on your file system.
@@ -53,10 +56,10 @@ Videos introducing this functionality.
 
 # Thanks
   This project makes use of the [Yaml.NET](https://github.com/aaubry/YamlDotNet). I have had to clone the source code into this project as without changes I couldnt get the raml syntax to be generated correctly.
-  
+
   This project also reliese upon the [SVG Export](http://community.sparxsystems.com/community-resources/706-svg-diagram-export-add-in).
   Please install this plugin.
-  
+
 
 # Useful
 

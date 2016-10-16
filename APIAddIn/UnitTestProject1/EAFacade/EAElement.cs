@@ -97,7 +97,7 @@ namespace UnitTestProject1.EAFacade
 
         public EA.Collection BaseClasses
         {
-            get { throw new NotImplementedException(); }
+            get { return new EACollection(""); }
         }
 
         public int ClassfierID { get; set; }

@@ -57,7 +57,7 @@ namespace UnitTestProject1.APIModels
             rootclass.addAttribute("booleanAttr", APIAddinClass.EA_TYPE_BOOLEAN);
             rootclass.addAttribute("floatAttr", APIAddinClass.EA_TYPE_FLOAT);
             rootclass.addAttribute("intAttr", APIAddinClass.EA_TYPE_INT);
-            rootclass.addAttribute("dateAttr", APIAddinClass.EA_TYPE_DATE);
+            rootclass.addAttribute("dateAttr", APIAddinClass.EA_TYPE_DATE,"0","1","2016-01-01");
             rootclass.addAttribute("currencyAttr", APIAddinClass.EA_TYPE_DECIMAL);
 
             EAFactory childClass = rootclass.addSupplier("ChildClass", APIAddinClass.EA_TYPE_CLASS, 0, null/*target stereotype*/, null, "0OrMoreAttribute"/*supplierEndRole*/, "0..*"/*cardinality*/, null);
@@ -71,7 +71,7 @@ namespace UnitTestProject1.APIModels
             EAFactory api = factory.setupClient("APITitle", APIAddinClass.EA_TYPE_OBJECT, APIAddinClass.EA_STEREOTYPE_SAMPLE, meta.META_API.ElementID, new string[] { APIManager.TITLE, "APITitle", "version", "1", "baseUri", "http://localhost", "mediaType", "application/json" });
 
             EAFactory resource = factory.addSupplier("/resource/{someuriparameter}", APIAddinClass.EA_TYPE_OBJECT, meta.META_RESOURCE.ElementID, null/*target stereotype*/, new string[] { "test", "testvalue" }/*runstate*/, "resource"/*supplierEndRole*/, ""/*relationshipName*/, null);
-
+                      
             resource.addSupplier("propertyClass", APIAddinClass.EA_TYPE_CLASS, 0, APIAddinClass.EA_STEREOTYPE_DATAITEM + "," + APIAddinClass.EA_TYPE_STRING/*target stereotype*/, null, "propClass"/*supplierEndRole*/, "1"/*cardinality*/, APIAddinClass.EA_TYPE_STRING);
 
             EAFactory schema = factory.addSupplier(rootclass.clientElement, "quoteSchema"/*supplier end role*/, "", null);
@@ -80,7 +80,13 @@ namespace UnitTestProject1.APIModels
 
             EAFactory getMethod = resource.addSupplier("get", APIAddinClass.EA_TYPE_OBJECT, meta.META_METHOD.ElementID, null/*target stereotype*/, null/*run state*/, "", "", null);
 
+            EAFactory queryMethod = getMethod.addSupplier("somequeryparameter", APIAddinClass.EA_TYPE_OBJECT, meta.META_QUERY_PARAMETER.ElementID, null/*Target stereotype*/, null/*run state*/, "", "", null);
+            EAFactory dataitem = queryMethod.addSupplier("somequeryparameter_type", APIAddinClass.EA_TYPE_CLASS, 0, APIAddinClass.EA_STEREOTYPE_DATAITEM, null/*run state*/, "", "", null);
+            dataitem.clientElement.Notes = "data_item_description";
+
             getMethod.addSupplier("notcacheable", APIAddinClass.EA_TYPE_OBJECT, meta.META_TRAIT.ElementID, null/*target stereotype*/, null/*run state*/, "", "", null);
+
+            getMethod.addSupplier("PERMISSION_EXECUTE", APIAddinClass.EA_TYPE_OBJECT, meta.META_PERMISSION.ElementID, null/*target stereotype*/, null/*run state*/, "", "", null);
 
             typesForResource.addSupplier("sample200Resp", APIAddinClass.EA_TYPE_OBJECT, schema.clientElement.ElementID, null/*target stereotype*/, null, "sample200Resp", "", null);
 

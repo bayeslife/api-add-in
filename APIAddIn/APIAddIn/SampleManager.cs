@@ -49,12 +49,12 @@ namespace APIAddIn
            
             //logger.log("Sample Root:" + container.Name);
 
-            EA.Package samplePkg = Repository.GetPackageByID(Repository.GetCurrentDiagram().PackageID);
+            EA.Package samplePkg = Repository.GetPackageByID(diagram.PackageID);
             EA.Package samplesPackage = Repository.GetPackageByID(samplePkg.ParentID);
             EA.Package apiPackage = Repository.GetPackageByID(samplesPackage.ParentID);
             if(fileManager!=null){
                 fileManager.initializeAPI(apiPackage.Name);
-                fileManager.setup();
+                fileManager.setup(APIAddinClass.RAML_0_8);
                 if (!fileManager.sampleExists(container.Name, containerClassifier))
                 {
                     MessageBox.Show("No file exists at:" + fileManager.samplePath(container.Name,containerClassifier));
@@ -77,7 +77,7 @@ namespace APIAddIn
 
             foreach (JProperty p in jo.Properties())
             {                
-                string rsv=null;
+                //string rsv=null;
                 if (p.Value.Type != JTokenType.Object && p.Value.Type != JTokenType.Array)
                 {
                     //logger.log("Adding Property:" + sample.Name);
@@ -236,7 +236,7 @@ namespace APIAddIn
         static public Hashtable sampleToJObject(EA.Repository Repository, EA.Diagram diagram)
         {
             Hashtable result = new Hashtable();
-            logger.log("Export Sample");
+            //logger.log("Export Sample");
             string msg = "";
 
             IList<EA.Element> clazzes = MetaDataManager.diagramClasses(Repository, diagram);
@@ -281,36 +281,71 @@ namespace APIAddIn
                                                                            
                 string rs = sample.RunState;
                                 
+                // Loop through all attributes in run state and add to json
                 Dictionary<string, RunState> runstate = ObjectManager.parseRunState(rs);
                 foreach (string key in runstate.Keys)
                 {
                     logger.log("Adding property:" + key + " =>" + runstate[key].value);
-                    EA.Attribute attr = null;
-                    if (clazz != null) {                        
+                    object o = runstate[key].value;
+
+                    // Find classifier attribute specified in run state
+                    string attrType = null;
+                    string attrUpperBound = null;
+                    if (clazz != null) {
                         foreach (EA.Attribute a in clazz.Attributes)
                         {
                             if (a.Name.Equals(key))
                             {
-                                attr = a;                                
+                                attrType = a.Type;
+                                attrUpperBound = a.UpperBound;
                                 break;
                             }
-                        }                                             
-                    }                                                
-                    object o = runstate[key].value;
-                    if (attr != null)
-                    {                       
-                        o = convertEATypeToValue(attr.Type, runstate[key].value);                     
-                        if (attr.UpperBound.Equals("*"))
+                        }
+
+                        // Check if attribuite is defined as related enumeration. When cardinaltity is 0..* then set the attribute cardinality so we serialize as an array
+                        foreach (EA.Connector con in clazz.Connectors)
                         {
+                            // Check relation is named the same as the run state attribute name and is an enumeration
+                            EA.Element related = Repository.GetElementByID(con.SupplierID);
+                            if (con.SupplierEnd.Role == key && related.Type == "Enumeration")
+                            {
+                                //if (con.SupplierEnd.Cardinality.Equals(APIAddinClass.CARDINALITY_0_TO_MANY))
+                                //{
+                                    //logger.log("  matching enum with 0..*:" + con.SupplierEnd.Cardinality);
+                                //}
+                                attrType = related.Type;
+                                attrUpperBound = con.SupplierEnd.Cardinality;
+                                break;
+                            }
+                        }
+
+                    }
+
+                    // Add attribute to json as either value or array
+                    if (attrType != null)
+                    {
+                        //logger.log("  upper bound:" + key + " =>" + attrUpperBound);
+                        if (attrUpperBound.Equals("*") || attrUpperBound.Equals(APIAddinClass.CARDINALITY_0_TO_MANY))
+                        {
+                            // Create array and split values separated by commas
                             JArray ja = new JArray();
-                            ja.Add(o);
+                            foreach (string value in runstate[key].value.Split(','))
+                            {
+                                o = convertEATypeToValue(attrType, value);
+                                ja.Add(o);
+                            }
                             jsonClass.Add(new JProperty(key, ja));
                         }
                         else
+                        {
+                            // Not array so convert and add attribute and formatted value
+                            o = convertEATypeToValue(attrType, runstate[key].value);
                             jsonClass.Add(new JProperty(key, o));
+                        }
                     }
                     else
-                    {                        
+                    {
+                        // No classifier found so add as object serialized as string
                         jsonClass.Add(new JProperty(key, o));
                     }                                            
                 }
@@ -394,7 +429,7 @@ namespace APIAddIn
             //KeyValuePair<string,JObject> kv = new KeyValuePair<string,JObject>(containerName,container);            
             //return kv;
 
-            logger.log("REturning result");
+            //logger.log("REturning result");
             result.Add("sample", containerName);
             result.Add("class", containerClassifier);
             result.Add("json", container);
@@ -437,7 +472,7 @@ namespace APIAddIn
                 if (fileManager != null)
                 {
                     fileManager.initializeAPI(sourcecontrolPackage);
-                    fileManager.setup();
+                    fileManager.setup(APIAddinClass.RAML_0_8);
                     fileManager.exportSample(sample,clazz, msg);
                 }            
         }        

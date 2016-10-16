@@ -16,7 +16,6 @@ namespace APIAddIn
 
         static FileManager fileManager = new FileManager(null);
         
-
         static public void setLogger(Logger l)
         {
             logger = l;
@@ -28,37 +27,36 @@ namespace APIAddIn
 
         static private JSchema convertEATypeToJSchemaType(string t)
         {
-            if (t.Equals(APIAddinClass.EA_TYPE_CURRENCY))
+            if (APIAddinClass.EA_TYPE_CURRENCY.ToLower().Equals(t.ToLower()))
             {
-                return new JSchema { 
-                    Type = JSchemaType.String,
-                    Pattern =@"^\$?(?=\(.*\)|[^()]*$)\(?\d{1,3}(,?\d{3})?(\.\d\d)?\)?$",
-                    Description="A currency",
-                    Title="Currency"
-                };
+                return DataTypeManager.getCurrencyType();
             }
-            if (t.Equals(APIAddinClass.EA_TYPE_DECIMAL))
+            if (APIAddinClass.EA_TYPE_DECIMAL.ToLower().Equals(t.ToLower()))
             {
-                return new JSchema { Type = JSchemaType.Number };
+                return DataTypeManager.getNumberType();
             }
-            if (t.Equals(APIAddinClass.EA_TYPE_FLOAT))
+            if (APIAddinClass.EA_TYPE_FLOAT.ToLower().Equals(t.ToLower()))
             {
-                return new JSchema { Type = JSchemaType.Number };
+                return DataTypeManager.getNumberType();
             }
-            if (t.Equals(APIAddinClass.EA_TYPE_INT))
+            if (APIAddinClass.EA_TYPE_INT.ToLower().Equals(t.ToLower()))
             {
-                return new JSchema { Type = JSchemaType.Integer };
+                return DataTypeManager.getIntegerType();
             }
-            else if (t.Equals(APIAddinClass.EA_TYPE_DATE))
+            else if (APIAddinClass.EA_TYPE_DATE.ToLower().Equals(t.ToLower()))
             {
-                return new JSchema { Type = JSchemaType.String };
+                return DataTypeManager.getDateType();
             }
-            else if (t.Equals(APIAddinClass.EA_TYPE_BOOLEAN))
+            else if (APIAddinClass.EA_TYPE_DATETIME.ToLower().Equals(t.ToLower()))
             {
-                return new JSchema { Type = JSchemaType.Boolean };
+                return DataTypeManager.getDateTimeType();
+            }
+            else if (APIAddinClass.EA_TYPE_BOOLEAN.ToLower().Equals(t.ToLower()))
+            {
+                return DataTypeManager.getBooleanType();
             }
             else
-                return new JSchema { Type = JSchemaType.String };
+                return DataTypeManager.getStringType();
         }
        
         static private void setRequirement(JSchema s, string name, string lowerBound, string upperBound)
@@ -80,6 +78,11 @@ namespace APIAddIn
 
 
         static public KeyValuePair<string, JSchema> schemaToJsonSchema(EA.Repository Repository, EA.Diagram diagram)
+            /* Exports schema diagram to JsonSchema.
+             * Schema root can be defined two ways:
+             *  1. Class identified by link from 'Object' (Not class or enum). Typically this will be an object inherited from 'TypeForResource'
+             *  2. Class identified with <Request> stereotype
+             */
         {
             DiagramManager.captureDiagramLinks(diagram);
 
@@ -114,6 +117,8 @@ namespace APIAddIn
                 JSchema schema = new JSchema();
                 if (clazz.Type.Equals("Enumeration") || (clazz.GetStereotypeList() != null && clazz.GetStereotypeList().Contains("enumeration")))
                     schema.Type = JSchemaType.String;
+                else if ((clazz.GetStereotypeList() != null && clazz.GetStereotypeList().ToLower().Contains("array")))
+                    schema.Type = JSchemaType.Array;
                 else
                     schema.Type = JSchemaType.Object;
                 schema.Title = clazz.Name;
@@ -121,7 +126,7 @@ namespace APIAddIn
                     schema.Description = clazz.Notes.Trim().Replace("\r\n", "");                
                 schema.AllowAdditionalProperties = false;
 
-                schema.ExtensionData.Add("javaType", "nz.co.iag.model.consumer.json." + clazz.Name);
+                //schema.ExtensionData.Add("javaType", "nz.co.iag.model.consumer.json." + clazz.Name);
                 schema.ExtensionData.Add("$schema", "http://json-schema.org/draft-04/schema#");
                
                 schemas.Add(clazz.Name, schema);
@@ -177,7 +182,8 @@ namespace APIAddIn
                         
                     }
                 }
-                
+
+                logger.log("Visiting all connections");
                 foreach (EA.Connector con in clazz.Connectors)
                 {                    
                     EA.Element related = null;
@@ -194,12 +200,17 @@ namespace APIAddIn
 
                                                         
                             {
-                                logger.log("FoundSupplier:" + related.Name + " to " + clazz.Name);
+                                //logger.log("FoundSupplier:" + related.Name + " to " + clazz.Name);
                                 if (schemas.ContainsKey(related.Name))
                                 {
                                     JSchema schemaRelated = schemas[related.Name];
                                     if (con.SupplierEnd.Role != null && con.SupplierEnd.Role.Length > 0)
+                                    {
+                                        
                                         dm.setDependency(related.Name, clazz.Name);
+                                        logger.log("Set Dependency:" + related.Name + " to " + clazz.Name);
+                                    }
+                                        
 
                                     try
                                     {
@@ -317,10 +328,29 @@ namespace APIAddIn
 
         static public string getDataItemType(EA.Element dataitem)
         {
-            String s = dataitem.GetStereotypeList().Replace(APIAddinClass.EA_STEREOTYPE_DATAITEM, "");
-            s = s.Replace(",", "");
-            return s;
-            
+            if (dataitem.GetStereotypeList() != null)
+            {
+                String s = dataitem.GetStereotypeList().Replace(APIAddinClass.EA_STEREOTYPE_DATAITEM, "");
+                s = s.Replace(",", "");
+                return s;
+            }
+            return null;                    
+        }
+
+        static public string getDataItemExample(EA.Element dataitem)
+        {
+            foreach (EA.TaggedValue da in dataitem.TaggedValues)
+            {
+                if (da.Name.Equals(APIAddinClass.EA_TAGGEDVALUE_DEFAULT))
+                {
+                    if (da.Value != null && da.Value.Length > 0)
+                    {
+                        logger.log("URIPARAM:Example" + da.Value);
+                        return da.Value;
+                    }                                            
+                }
+            }
+            return null;
         }
 
         static Object handleLink(Object context, EA.Element clazz, EA.Connector connector, EA.Element attr)
@@ -395,6 +425,8 @@ namespace APIAddIn
         {
             //logger.log("Export Schemas");
 
+            DiagramManager.exportDiagram(Repository, diagram);
+
             if (!diagram.Stereotype.Equals(APIAddinClass.EA_STEREOTYPE_SCHEMADIAGRAM))
             {
                 logger.log("exportSchema: Ignore diagam that isnt a schema diagram");
@@ -417,7 +449,7 @@ namespace APIAddIn
                 }
 
                 fileManager.initializeAPI(sourcecontrolPackage);
-                fileManager.setup();
+                fileManager.setup(APIAddinClass.RAML_0_8);
                 fileManager.exportSchema(container.Value.Title, msg);                
             }
             else
@@ -460,7 +492,9 @@ namespace APIAddIn
         {
             string nameOfGenerated = "Generated";
 
-            EA.Diagram diagram = Repository.GetCurrentDiagram();
+            EA.Diagram diagram = null;
+            if (Repository.GetContextItemType() == EA.ObjectType.otDiagram)
+                diagram = Repository.GetContextObject(); 
 
             EA.Package schemaPackage = Repository.GetPackageByID(diagram.PackageID);
             EA.Package apiPackage = Repository.GetPackageByID(schemaPackage.ParentID);
@@ -740,7 +774,9 @@ namespace APIAddIn
 
         static public void operateOnSample(EA.Repository Repository,System.Func<EA.Repository,EA.Element,bool> f)
         {
-            EA.Diagram diagram = Repository.GetCurrentDiagram();
+            EA.Diagram diagram = null;
+            if (Repository.GetContextItemType() == EA.ObjectType.otDiagram)
+                diagram = Repository.GetContextObject(); 
 
             if (!diagram.Stereotype.Equals(APIAddinClass.EA_STEREOTYPE_SAMPLEDIAGRAM) &&
                 !diagram.Stereotype.Equals(APIAddinClass.EA_STEREOTYPE_APIDIAGRAM))
@@ -749,7 +785,7 @@ namespace APIAddIn
                 return;
             }
 
-            EA.Package samplePkg = Repository.GetPackageByID(Repository.GetCurrentDiagram().PackageID);
+            EA.Package samplePkg = Repository.GetPackageByID(diagram.PackageID);
             EA.Package samplesPackage = Repository.GetPackageByID(samplePkg.ParentID);
             EA.Package apiPackage = Repository.GetPackageByID(samplesPackage.ParentID);
 
@@ -775,15 +811,19 @@ namespace APIAddIn
          */
         static public void updateClassFromInstance(EA.Repository Repository)
         {
-            EA.Diagram diagram = Repository.GetCurrentDiagram();
+            EA.Diagram diagram = null;
+            if (Repository.GetContextItemType() == EA.ObjectType.otDiagram)
+                diagram = Repository.GetContextObject();
+            else if (Repository.GetContextItemType() == EA.ObjectType.otElement)
+                diagram = Repository.GetCurrentDiagram();
 
-            if(!diagram.Stereotype.Equals(APIAddinClass.EA_STEREOTYPE_SAMPLEDIAGRAM))
+            if (!diagram.Stereotype.Equals(APIAddinClass.EA_STEREOTYPE_SAMPLEDIAGRAM))
             {
                 MessageBox.Show("The diagram must be stereotyped as:" + APIAddinClass.EA_STEREOTYPE_SAMPLEDIAGRAM);
                 return;
             }
 
-            EA.Package samplePkg = Repository.GetPackageByID(Repository.GetCurrentDiagram().PackageID);
+            EA.Package samplePkg = Repository.GetPackageByID(diagram.PackageID);
             EA.Package samplesPackage = Repository.GetPackageByID(samplePkg.ParentID);
             EA.Package apiPackage = Repository.GetPackageByID(samplesPackage.ParentID);
 
@@ -1009,7 +1049,7 @@ namespace APIAddIn
                 throw new ModelValidationException(v.validationErrors);
         }
 
-        static public void visitOutboundConnectedElements(EA.Repository theRepository,EA.Element clientElement, Object context, System.Func<EA.Connector, EA.Element,EA.Element, bool> filter, System.Func<Object,EA.Element, EA.Connector, EA.Element,Object> processConnection)
+        static public void visitOutboundConnectedElements(EA.Repository theRepository, EA.Element clientElement, Object context, System.Func<EA.Repository, EA.Connector, EA.Element, EA.Element, bool> filter, System.Func<Object, EA.Element, EA.Connector, EA.Element, Object> processConnection)
         {
             //logger.log("Processing Connections from:" + clientElement.Name);
             foreach (EA.Connector con in clientElement.Connectors)
@@ -1025,7 +1065,7 @@ namespace APIAddIn
                     if (supplierElement.ClassifierID != 0)
                         supplierClassifier = theRepository.GetElementByID(supplierElement.ClassifierID);
 
-                    if (!filter(con,supplierElement,supplierClassifier))
+                    if (!filter(theRepository, con, supplierElement, supplierClassifier))
                         continue;
 
                     //logger.log("Filtered");

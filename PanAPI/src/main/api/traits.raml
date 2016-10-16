@@ -152,7 +152,7 @@
             description: the URI to query to find the status of this pending event
             type: string
             required: true
-            example: http://api.live.iag.co.nz/resource/{version}/event/{eventId}
+            example: http://api.live.corp.com/resource/{version}/event/{eventId}
         body:
           application/json:
             schema: <<postInfoSchema>>
@@ -177,7 +177,7 @@
             type: string
             required: true
             example: |
-              http://api.live.iag.co.nz/resource/{version}/{resourceId}
+              http://api.live.corp.com/resource/{version}/{resourceId}
         body:
           application/json:
             schema: <<postInfoSchema>>
@@ -279,7 +279,7 @@
         description: |
           **Not Acceptable**
           The requested resource is only capable of generating content not acceptable according to the Accept headers sent in the request.
-          Note that the Mule Anykit component used in API implementations is known not to completely correctly support the Accept parameter. https://confluence.iag.com.au/x/QlLTCQ
+          Note that the Mule Anykit component used in API implementations is known not to completely correctly support the Accept parameter. 
         body:
           application/json:
             schema: <<infoSchema>>

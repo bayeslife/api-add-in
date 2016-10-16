@@ -1,12 +1,10 @@
 {
   "title": "ErrorResponse",
   "description": "",
-  "javaType": "nz.co.iag.model.consumer.json.ErrorResponse",
   "definitions": {
     "ReasonCode": {
       "title": "ReasonCode",
       "description": "The reasonCode is expected to be used by the client to go to a content management system to determine some content that is to be displayed to the end user.\nFIELD_REQUIRED:A field that is required was not provided.\nINVALID_FORMAT:A field was provided but is in the wrong format.",
-      "javaType": "nz.co.iag.model.consumer.json.ReasonCode",
       "type": "string",
       "additionalProperties": false,
       "additionalItems": false,
@@ -18,7 +16,6 @@
     "HTTPStatusCategory": {
       "title": "HTTPStatusCategory",
       "description": "Indicates the general category of failure\n4XX_CLIENT_ERROR:\n5XX_SERVER_ERROR:",
-      "javaType": "nz.co.iag.model.consumer.json.HTTPStatusCategory",
       "type": "string",
       "additionalProperties": false,
       "additionalItems": false,
@@ -30,7 +27,6 @@
     "Reasons": {
       "title": "Reasons",
       "description": "",
-      "javaType": "nz.co.iag.model.consumer.json.Reasons",
       "type": "object",
       "additionalProperties": false,
       "properties": {
@@ -57,7 +53,6 @@
     "ResponseInfo": {
       "title": "ResponseInfo",
       "description": "Response  Info",
-      "javaType": "nz.co.iag.model.consumer.json.ResponseInfo",
       "type": "object",
       "additionalProperties": false,
       "properties": {

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using APIAddIn;
@@ -17,6 +18,23 @@ namespace UnitTestProject1
     [TestClass]
     public class APITest
     {
+        [TestMethod]
+        public void TestConvert()
+        {
+            DateTime dt =Convert.ToDateTime("2016-01-01");
+
+
+            DateTime dt2 = Convert.ToDateTime("2016-01-01T00:00:00Z");
+
+            DateTime dt3 =  dt2.ToLocalTime();
+
+
+            //Assert.AreEqual(dt,dt2);
+            Assert.AreEqual(dt3, dt2);
+
+    
+        }
+
         [TestMethod]
         public void TestYaml()
         {
@@ -104,10 +122,12 @@ namespace UnitTestProject1
 
             Assert.IsTrue(yaml.Contains("someuriparameter"));
 
+            Assert.IsTrue(yaml.Contains("data_item_description"));
+
             FileManager fileManager = new FileManager(null);
             fileManager.initializeAPI(EARepository.currentPackage.Name);
-            fileManager.setup();
-            fileManager.exportAPI(EARepository.currentPackage.Name, yaml.ToString());
+            fileManager.setup(APIAddinClass.RAML_0_8);
+            fileManager.exportAPI(EARepository.currentPackage.Name, APIAddinClass.RAML_0_8,  yaml.ToString());
         }
 
         [TestMethod]
@@ -133,8 +153,8 @@ namespace UnitTestProject1
 
             FileManager fileManager = new FileManager(null);
             fileManager.initializeAPI(EARepository.currentPackage.Name);
-            fileManager.setup();
-            fileManager.exportAPI(EARepository.currentPackage.Name,yaml);
+            fileManager.setup(APIAddinClass.RAML_0_8);
+            fileManager.exportAPI(EARepository.currentPackage.Name, APIAddinClass.RAML_0_8,yaml);
         }
 
         [TestMethod]
@@ -211,6 +231,45 @@ namespace UnitTestProject1
 
 
 
+        }
+
+        [TestMethod]
+        public void TestRAML1()
+        {
+            EAMetaModel meta = new EAMetaModel();
+            meta.setupAPIPackage();
+            EAFactory api = APIModel.createAPI1(meta);
+
+            YamlMappingNode map = new YamlMappingNode();
+
+            APIManager.REIFY_VERSION = APIAddinClass.RAML_1_0;
+
+            //Test             
+            APIManager.reifyAPI(EARepository.Repository, api.clientElement, map);
+
+            YamlDocument d = new YamlDocument(map);
+
+            YamlStream stream = new YamlStream();
+            stream.Documents.Add(d);
+
+            StringWriter writer = new StringWriter();
+            stream.Save(writer, false);
+
+            string yaml = writer.ToString();
+
+            Assert.IsTrue(yaml.Contains("is: [notcacheable]"));
+
+            Assert.IsTrue(yaml.Contains("dev-environment"));
+            Assert.IsTrue(yaml.Contains("prod-environment"));
+
+            Assert.IsTrue(yaml.Contains("someuriparameter"));
+
+            Assert.IsTrue(yaml.Contains("data_item_description"));
+
+            FileManager fileManager = new FileManager(null);
+            fileManager.initializeAPI(EARepository.currentPackage.Name);
+            fileManager.setup(APIAddinClass.RAML_0_8);
+            fileManager.exportAPI(EARepository.currentPackage.Name, APIAddinClass.RAML_0_8, yaml.ToString());
         }
     }
 }

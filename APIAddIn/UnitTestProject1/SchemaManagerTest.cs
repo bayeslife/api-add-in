@@ -288,7 +288,9 @@ namespace UnitTestProject1
             Assert.AreEqual("foobar", def.Value);            
 
         }
-
+        /// <summary>
+        /// ///////////////////
+        /// </summary>
         [TestMethod]
         public void TestUpdateInstanceFromClass()
         {
@@ -376,6 +378,37 @@ namespace UnitTestProject1
                 string s = SchemaManager.getDataItemType(attr);
                 Assert.AreEqual("string", s);
             }
+            {
+                EA.Element attr = new EAElement();
+                attr.Stereotype = null;
+
+                string s = SchemaManager.getDataItemType(attr);
+                Assert.IsNull(s);
+            }
+        }
+
+        [TestMethod]
+        public void TestGetDataItemExample()
+        {
+            EAMetaModel meta = new EAMetaModel();
+            {
+                EA.Element attr = new EAElement();
+                object o = attr.TaggedValues.AddNew(APIAddinClass.EA_TAGGEDVALUE_DEFAULT, "");
+                EA.TaggedValue tv = (EA.TaggedValue)o;
+                tv.Name = APIAddinClass.EA_TAGGEDVALUE_DEFAULT;
+                tv.Value = "foobar";
+                string s = SchemaManager.getDataItemExample(attr);
+                Assert.AreEqual("foobar", s);
+            }
+            {
+                EA.Element attr = new EAElement();
+                object o = attr.TaggedValues.AddNew(APIAddinClass.EA_TAGGEDVALUE_DEFAULT, "");
+                EA.TaggedValue tv = (EA.TaggedValue)o;
+                tv.Name = APIAddinClass.EA_TAGGEDVALUE_DEFAULT;
+                tv.Value = null;
+                string s = SchemaManager.getDataItemExample(attr);
+                Assert.IsNull(s);
+            }
         }
 
         [TestMethod]
@@ -407,7 +440,40 @@ namespace UnitTestProject1
             Assert.AreEqual(1+1, objects.Count);
         }
 
-    
+        [TestMethod]
+        public void TestRecursiveSchema()
+        {
+            JSchema rootSchema = new JSchema();
+            rootSchema.Description = "root";
+
+            JSchema child1Schema = new JSchema();
+            child1Schema.Description = "Child1";
+
+            JSchema child2Schema = new JSchema();
+            child2Schema.Description = "Child2";
+
+            JSchema arraySchema = new JSchema()
+            {
+                Type = JSchemaType.Array,
+                Items = { child2Schema }
+            };
+            child1Schema.Properties.Add("children2", arraySchema);
+
+
+            JSchema arraySchema2 = new JSchema()
+            {
+                Type = JSchemaType.Array,
+                Items = { child1Schema }
+            };
+            child2Schema.Properties.Add("children1", arraySchema2);
+
+            rootSchema.Properties.Add("child1", child1Schema);
+
+            string msg = rootSchema.ToString() ;
+            msg = msg + "\n";
+            
+        }
     }
+
 
 }

@@ -305,12 +305,14 @@ namespace UnitTestProject1.EAFacade
 
         public EA.ObjectType GetContextItemType()
         {
-            throw new NotImplementedException();
+            return EA.ObjectType.otDiagram;
+            //throw new NotImplementedException();
         }
 
         public dynamic GetContextObject()
         {
-            throw new NotImplementedException();
+            return currentDiagram;
+            //throw new NotImplementedException();
         }
 
         public string GetCounts()

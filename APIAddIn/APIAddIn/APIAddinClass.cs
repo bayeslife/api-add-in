@@ -27,6 +27,7 @@ namespace APIAddIn
         const string menuImportSOA = "&ImportSexportAllOA";
         const string menuExportSOA = "&ExportSOA";
         const string menuExportAPI = "&ExportAPI";
+        const string menuExportAPIRAML1 = "&ExportAPI RAML1";
         const string menuExportSchema = "&ExportSchemas";
         const string menuExportSample = "&ExportSamples";
         const string menuSyncSample = "&SyncDiagramSample";
@@ -49,6 +50,7 @@ namespace APIAddIn
         public static string EA_TYPE_DECIMAL = "decimal";
         public static string EA_TYPE_FLOAT = "float";
         public static string EA_TYPE_DATE = "date";
+        public static string EA_TYPE_DATETIME = "datetime";
         public static string EA_TYPE_STRING = "String";
         public static string EA_TYPE_CURRENCY = "currency";
         public static string EA_TYPE_ATTRIBUTE = "Attribute";
@@ -91,6 +93,7 @@ namespace APIAddIn
         public static string METAMODEL_TRAIT = "Trait";
         public static string METAMODEL_RELEASEPIPELINE = "ReleasePipeline";
         public static string METAMODEL_ENVIRONMENT = "Environment";
+        public static string METAMODEL_PERMISSION = "Permission";
 
         public static string METAMODEL_PLACEHOLDER = "PlaceHolder";
 
@@ -110,6 +113,12 @@ namespace APIAddIn
         public static string CARDINALITY_ONE = "1";
 
         public static string DIRECTION_SOURCE_TARGET = "Source -> Destination";
+
+        public static string MARKDOWN_PARAGRAPH_BREAK = "\n";
+
+        public static double RAML_0_8 = 0.8;
+        public static double RAML_1_0 = 1.0;
+        public static double[] RAML_VERSIONS = new double[2] { RAML_0_8, RAML_1_0 } ;
         
         ///
         /// Called Before EA starts to check Add-In Exists
@@ -132,6 +141,7 @@ namespace APIAddIn
             SampleManager.setLogger(logger);
             SampleManager.setFileManager(fileManager);
             WSDLManager.setLogger(logger);
+            MetaDataManager.setLogger(logger);
 
             return "a string";
         }
@@ -149,60 +159,65 @@ namespace APIAddIn
         {
             logger.log("location:" + Location);
             logger.log("MenuName:" + MenuName);
+            logger.log("ContextItemType:" + Repository.GetContextItemType());
 
-            EA.Diagram diagram = Repository.GetCurrentDiagram();    
+            EA.Diagram diagram = null;
+            if( Repository.GetContextItemType() == ObjectType.otDiagram )
+                diagram = Repository.GetContextObject();
+            else if (Repository.GetContextItemType() == ObjectType.otElement)
+                diagram = Repository.GetCurrentDiagram();
 
-                switch (MenuName)
-                {
-                    // defines the top level menu option
-                    case "":                        
-                        return menuHeader;
+            switch (MenuName)
+            {
+                // defines the top level menu option
+                case "":                        
+                    return menuHeader;
                                                                 
-                    case menuHeader:
-                        string[] subMenusOther = { menuExportPackage,menuExportAll, menuExportDiagram, menuToggleLogging};
-                        string[] subMenusAPI = { menuExportPackage, menuExportAll, menuExportDiagram, menuExportAPI, menuValidateDiagram, menuUpdateClassFromInstance, menuUpdateInstanceFromClass, menuToggleLogging };
-                        string[] subMenusSOA = { menuExportPackage, menuExportSOA, menuExportDiagram, menuImportSOA };
-                        string[] subMenusSchema = { menuExportPackage, menuExportAll, menuExportDiagram, menuValidateDiagram, menuExportSchema, menuCreateSample, menuUpdateClassFromInstance, menuUpdateInstanceFromClass, menuToggleLogging };
-                        string[] subMenusSample = { menuExportPackage, menuExportAll, menuExportDiagram, menuExportSample, menuValidateDiagram, menuSyncSample, menuUpdateClassFromInstance, menuUpdateInstanceFromClass, menuToggleLogging };
-                        //string[] subMenusCanonical = { menuExportAll, menuExportDiagram, menuExportCanonical, menuCreateSample, menuUpdateClassFromInstance, menuUpdateInstanceFromClass, menuToggleLogging };
+                case menuHeader:
+                    string[] subMenusOther = { menuExportPackage,menuExportAll, menuExportDiagram, menuToggleLogging};
+                    string[] subMenusAPI = { menuExportPackage, menuExportAll, menuExportDiagram, menuExportAPI, menuExportAPIRAML1, menuValidateDiagram, menuUpdateClassFromInstance, menuUpdateInstanceFromClass, menuToggleLogging };
+                    string[] subMenusSOA = { menuExportPackage, menuExportSOA, menuExportDiagram, menuImportSOA };
+                    string[] subMenusSchema = { menuExportPackage, menuExportAll, menuExportDiagram, menuValidateDiagram, menuExportSchema, menuCreateSample, menuUpdateClassFromInstance, menuUpdateInstanceFromClass, menuToggleLogging };
+                    string[] subMenusSample = { menuExportPackage, menuExportAll, menuExportDiagram, menuExportSample, menuValidateDiagram, menuSyncSample, menuUpdateClassFromInstance, menuUpdateInstanceFromClass, menuToggleLogging };
+                    //string[] subMenusCanonical = { menuExportAll, menuExportDiagram, menuExportCanonical, menuCreateSample, menuUpdateClassFromInstance, menuUpdateInstanceFromClass, menuToggleLogging };
 
-                        if (diagram != null && diagram.Stereotype.Equals(APIAddinClass.EA_STEREOTYPE_APIDIAGRAM))
-                        {
-                            logger.log("API Menus");
-                            return subMenusAPI;
-                        }
-                        else if (diagram != null && diagram.Stereotype.Equals(APIAddinClass.EA_STEREOTYPE_SOADIAGRAM))
-                        {
-                            logger.log("SOA Menus");
-                            return subMenusSOA;
-                        }
-                        else if (diagram != null && diagram.Stereotype.Equals(APIAddinClass.EA_STEREOTYPE_SCHEMADIAGRAM))
-                        {
-                            logger.log("Schema Menus");
-                            return subMenusSchema;
-                        }
-                        else if (diagram != null && diagram.Stereotype.Equals(APIAddinClass.EA_STEREOTYPE_SAMPLEDIAGRAM))
-                        {
-                            logger.log("Sample Menus");
-                            return subMenusSample;
-                        }
-                        //else if (diagram != null && diagram.Stereotype.Equals(APIAddInClass.EA_STEREOTYPE_CANONICALDIAGRAM))
-                        //{
-                        //    logger.log("Canonical Menus");
-                        //    return subMenusCanonical;
-                        //}
+                    if (diagram != null && diagram.Stereotype.Equals(APIAddinClass.EA_STEREOTYPE_APIDIAGRAM))
+                    {
+                        logger.log("API Menus");
+                        return subMenusAPI;
+                    }
+                    else if (diagram != null && diagram.Stereotype.Equals(APIAddinClass.EA_STEREOTYPE_SOADIAGRAM))
+                    {
+                        logger.log("SOA Menus");
+                        return subMenusSOA;
+                    }
+                    else if (diagram != null && diagram.Stereotype.Equals(APIAddinClass.EA_STEREOTYPE_SCHEMADIAGRAM))
+                    {
+                        logger.log("Schema Menus");
+                        return subMenusSchema;
+                    }
+                    else if (diagram != null && diagram.Stereotype.Equals(APIAddinClass.EA_STEREOTYPE_SAMPLEDIAGRAM))
+                    {
+                        logger.log("Sample Menus");
+                        return subMenusSample;
+                    }
+                    //else if (diagram != null && diagram.Stereotype.Equals(APIAddInClass.EA_STEREOTYPE_CANONICALDIAGRAM))
+                    //{
+                    //    logger.log("Canonical Menus");
+                    //    return subMenusCanonical;
+                    //}
             
-                        return subMenusOther;
+                    return subMenusOther;
 
-                    case menuHeaderExperimental:
-                        string[] subMenus2 = { menuSqlQuery, menuWeb, };
-                        //EA.Element apiEl = diagramAPI(Repository);
-                        //if (apiEl == null)
-                        //{
-                        //    return new string[] { menuGenerate, menuGenerateSamples, menuGenerateAPI, menuValidateDiagram, };
-                        //}                        
-                        return subMenus2;
-                }
+                case menuHeaderExperimental:
+                    string[] subMenus2 = { menuSqlQuery, menuWeb, };
+                    //EA.Element apiEl = diagramAPI(Repository);
+                    //if (apiEl == null)
+                    //{
+                    //    return new string[] { menuGenerate, menuGenerateSamples, menuGenerateAPI, menuValidateDiagram, };
+                    //}                        
+                    return subMenus2;
+            }
  
             return "";
         }
@@ -240,10 +255,12 @@ namespace APIAddIn
 
             logger.log("Get Menu State:" + MenuName+":"+ItemName);
 
-            if (IsProjectOpen(Repository))
+            if (IsProjectOpen(Repository))           
             {
-            
-                EA.Diagram diagram = Repository.GetCurrentDiagram();    
+
+                EA.Diagram diagram = null;
+                if (Repository.GetContextItemType() == ObjectType.otDiagram)
+                    diagram = Repository.GetContextObject(); 
                 
 
                 switch (ItemName)
@@ -260,6 +277,7 @@ namespace APIAddIn
 
 
                     case menuExportAPI:
+                    case menuExportAPIRAML1:
                         IsEnabled = false;
                         if (diagram != null && 
                                 (
@@ -322,7 +340,9 @@ namespace APIAddIn
         {
             logger.enable(Repository);
 
-            EA.Diagram diagram = Repository.GetCurrentDiagram();
+            EA.Diagram diagram = null;
+            if (Repository.GetContextItemType() == ObjectType.otDiagram)
+                diagram = Repository.GetContextObject(); 
                                    
             switch (ItemName)
             {
@@ -400,7 +420,11 @@ namespace APIAddIn
                     MetaDataManager.setAsAPIDiagram(Repository, diagram);
                     break;
 
-                
+                case menuExportAPIRAML1:
+                    APIManager.exportAPI_RAML1(Repository, diagram);
+                    MetaDataManager.setAsAPIDiagram(Repository, diagram);
+                    break;
+
                 case menuToggleLogging:
                     logger.toggleLogging(Repository);                    
                     break;
@@ -436,7 +460,9 @@ namespace APIAddIn
 
         private void exportAll(EA.Repository Repository)
         {
-            EA.Diagram diagram = Repository.GetCurrentDiagram();
+            EA.Diagram diagram = null;
+            if (Repository.GetContextItemType() == ObjectType.otDiagram)
+                diagram = Repository.GetContextObject(); 
             APIManager.exportAPI(Repository, diagram);
 
             EA.Package apiPackage = Repository.GetPackageByID(diagram.PackageID);
@@ -450,7 +476,7 @@ namespace APIAddIn
             EA.Package schemasPackage = null;
             foreach (EA.Package p in apiPackage.Packages)
             {
-                logger.log("Package:" + p.Name);
+                //logger.log("Package:" + p.Name);
                 if (p.Name.Equals(APIAddinClass.API_PACKAGE_SAMPLES))
                 {
                     samplePackage = p;
@@ -463,11 +489,11 @@ namespace APIAddIn
 
             if (samplePackage == null || schemasPackage == null)
             {
-                logger.log("No an api/model package:" + apiPackage);
+                logger.log("Not an api/model package:" + apiPackage.Name);
                 return;
             }
 
-            logger.log("Found api/model package:" + apiPackage);
+            logger.log("Found api/model package:" + apiPackage.Name);
             if (samplePackage != null)
             {
                 List<EA.Package> pkgs = new List<EA.Package>();
@@ -504,29 +530,11 @@ namespace APIAddIn
 
         private void exportDiagram(EA.Repository Repository)
         {
-            EA.Diagram diagram = Repository.GetCurrentDiagram();
+            EA.Diagram diagram = null;
+            if (Repository.GetContextItemType() == ObjectType.otDiagram)
+                diagram = Repository.GetContextObject(); 
 
-            string confluencedata = null;
-
-            if (diagram.Version != "1.0") {
-                confluencedata = diagram.Version;            
-            }else{
-                confluencedata = diagram.Notes;            
-            }
-            if(confluencedata==null || confluencedata.Length==0){
-                MessageBox.Show("Please define the diagram version as <confluence page name>");
-            }
-            else
-            {
-                char[] delimiter = { ',' };
-                string[] pages = confluencedata.Split(delimiter);
-                foreach(string page in pages){
-                    string file = @"d:\tmp\content\" + page + "---" + diagram.Name + ".svg";
-                    logger.log(file);
-                    SVGExport.EAPlugin.SaveDiagramAsSvg(Repository, diagram, file);
-                }                
-            }
-                
+            DiagramManager.exportDiagram(Repository, diagram);                
         }
 
 

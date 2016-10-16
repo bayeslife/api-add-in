@@ -1,0 +1,451 @@
+ secured:
+  usage: Apply this to any method that needs to be secured
+  description: Some requests require authentication.
+  headers:
+    Authorization:
+      description: |
+          Used to send a valid access token.
+      type: string
+      example: |
+         Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjEzODY4OTkxMzEsImlzcyI6ImppcmE6MTU0ODk1OTUiLCJxc2giOiI4MDYzZmY0Y2ExZTQxZGY3YmM5MGM4YWI2ZDBmNjIwN2Q0OTFjZjZkYWQ3YzY2ZWE3OTdiNDYxNGI3MTkyMmU5IiwiaWF0IjoxMzg2ODk4OTUxfQ.uKqU9dTB6gKwG6jQCuXYAiMNdfNRw98Hw_IWuA5MaMo
+      required: true
+  responses:
+    401:
+      description: |
+        **Unauthorized**
+        Bad or expired token, invalid audience.
+        To migtigate this error, the client should re-authenticate the user and/or request a new not expired token.
+        *For example:* The user authentication failed, or the authentication token was not from a trusted Identity Provider
+      body:
+        application/json:
+          #schema: <<infoSchema>>
+          example: |
+            {
+              "responseInfo":{
+                "id": "{guid}",
+                "code": "0401",
+                "status": "ERROR_4XX_CLIENT",
+                "message": "The Token Could Not Be Validated",
+                "description": "The token was corrupt, expired, or not what was expected"
+              }
+            }
+    403:
+      description: |
+        **Forbidden**
+        The user does not have the correct (claim) permission(s/) to access this resource.
+        The user is not entitled to access the resource.  One customer cannot access details of another customer.
+        Re-authenticating the user won't help here.
+        *For example:* wrong consumer key, bad nonce, expired timestamp, etc
+      body:
+        application/json:
+          #schema: <<infoSchema>>
+          example: |
+            {
+              "responseInfo":{
+                "id": "{guid}",
+                "code": "0403",
+                "status": "ERROR_4XX_CLIENT",
+                "message": "Access Denied",
+                "description": "The user does not have the correct permissions to access this resource"
+              }
+            }
+
+ referer:
+  headers:
+    referer:
+      description: The referer header is required as the API uses this value to understand which channel a request is being submitted from.  http://bit.ly/1WFNJQ8
+      type: string
+      example: |
+        Referer: https://www.state.co.nz/dashboard/
+      required: true
+
+ notcacheable:
+  responses:
+    200:
+      headers:
+        Cache-Control:
+          description: Used to require that no caching of the content should occur
+          type: string
+          example: |
+            Cache-Control: max-age=0;no-store
+          required: true
+
+ crossOrigin:
+  responses:
+    200:
+      headers:
+        Access-Control-Allow-Origin:
+          description: Used to indicate that the API can be called from any client domain other than just api.live.corp.com. Note that cross origin support is easily added to Mule and Dot Net Core implementations. 
+          type: string
+          example: |
+            Access-Control-Allow-Origin: *
+          required: true
+        Access-Control-Allow-Method:
+          description: Used to indicate that the API method can be called from a client domain other than api.live.corp.com. Note that cross origin support is easily added to Mule and Dot Net Core implementations. 
+          type: string
+          example: |
+            Access-Control-Allow-Origin: GET,POST
+          required: true
+        Access-Control-Allow-Headers:
+          description: Used to indicate that the headers that can be supplied by a cross origin client. Note that cross origin support is easily added to Mule and Dot Net Core implementations. 
+          type: string
+          example: |
+            Access-Control-Allow-Origin: accept,authorization
+          required: true
+
+ pragma-no-body:
+  responses:
+    400:
+      description: Requests should not have content
+      headers:
+        Pragma-No-Body:
+          description: Used to indicate that requests should not have any body content
+          example: |
+            Pragma: no-body-allowed
+
+
+ valid-collection-response:
+  responses:
+    200:
+      description: |
+        **OK**
+        The operation was successful
+      body:
+        application/json:
+          schema: <<collectionRespSchema>>
+          example: <<sample200CollectionResp>>
+
+ valid-item-response:
+  responses:
+    200:
+      description: |
+        **OK**
+        The operation was successful
+      body:
+        application/json:
+          schema: <<respSchema>>
+          example: <<sample200Resp>>
+
+ valid-createitem-sync-response:
+  responses:
+    200:
+      description: |
+        **OK**
+        The operation was successful
+      body:
+        application/json:
+          schema: <<respSchema>>
+          example: <<sample200Resp>>
+
+ valid-createitem-sync-accepted-response:
+  responses:
+    200:
+      description: |
+        **OK**
+        The operation was successful
+      body:
+        application/json:
+          schema: <<respSchema>>
+          example: <<sample200Resp>>
+    202:
+      description: |
+        **OK**
+        The operation has been accepted but it not currently known to be complete or in error
+      body:
+        application/json:
+          schema: <<respSchema>>
+          example: <<sample202Resp>>
+
+ valid-createitem-response:
+  responses:
+    200:
+      description: |
+        **OK**
+        The operation was successful
+      body:
+        application/json:
+          schema: <<postRespSchema>>
+          example: <<postSample200Resp>>
+    202:
+      description: |
+        **Accepted**
+        The request has been accepted for processing, but the processing has not been completed.
+        *For example:* When the client performs an sync-async create, a 202 is returned to say we have received the request but the operation is still in action.
+      headers:
+        Location:
+          description: the URI to query to find the status of this pending event
+          type: string
+          required: true
+          example: http://api.live.corp.com/resource/{version}/event/{eventId}
+      body:
+        application/json:
+          schema: <<postInfoSchema>>
+          example: |
+            {
+              "responseInfo":{
+                "id": "{guid}",
+                "code": "0202",
+                "status": "PENDING",
+                "message": "Accepted",
+                "description": "The request has been received but the operation is still pending. Query the event store at the URI in the Location header"
+              }
+            }
+    303:
+      description: |
+        **See Other**
+        The response to the request can be found under another URI (see the Location header) using a GET method.
+        *For example:* The client is polling the event store for the for the status of a POST, the create was successful
+      headers:
+        Location:
+          description: the URI to find the resource that has just been created
+          type: string
+          required: true
+          example: |
+            http://api.live.corp.com/resource/{version}/{resourceId}
+      body:
+        application/json:
+          schema: <<postInfoSchema>>
+          example: |
+            {
+              "responseInfo":{
+                "id": "{guid}",
+                "code": "0303",
+                "status": "COMPLETED",
+                "message": "See Other",
+                "description": "The response to the request can be found under another URI (see Location header)"
+              }
+            }
+
+ teapot-response:
+  responses:
+    418:
+      description: |
+        **I'm a teapot**
+        Mule is having identity issues
+      body:
+        application/json:
+          schema: <<infoSchema>>
+          example: |
+            {
+              "responseInfo":{
+                "id": "correlationId (GUID)",
+                "code": "0418",
+                "status": "ERROR",
+                "message": "I'm a teapot",
+                "description": "I'm a teapot"
+              }
+            }
+
+ client-error-response-badrequest:
+  responses:
+    400:
+      description: |
+        **Bad Request**
+        The request cannot be fulfilled due to bad syntax	.
+        *For example:* The request did not match the schema (schema validation failed)
+      body:
+        application/json:
+          schema: <<infoSchema>>
+          example: <<sample400Resp>>
+
+ client-error-response-unauthorized:
+  responses:
+    401:
+      description: |
+        **Unauthorized**
+        Bad or expired token. To fix it, re-authenticate the user.
+        *For example:* The user authentication failed, or the authentication token was not from a trusted Identity Provider
+      body:
+        application/json:
+          schema: <<infoSchema>>
+          example: <<sample401Resp>>
+
+ client-error-response-forbidden:
+  responses:
+    403:
+      description: |
+        **Forbidden**
+        Bad authentication token. The user does not have the correct permissions to access this resource.
+        The user is not entitled to access the resource.  One customer cannot access details of another customer.
+        Re-authenticating the user won't help here.
+        *For example:* wrong consumer key, bad nonce, expired timestamp, etc
+      body:
+        application/json:
+          schema: <<infoSchema>>
+          example: <<sample403Resp>>
+
+ client-error-response-notfound:
+  responses:
+    404:
+      description: |
+        **Not Found**
+        The <<resourcePathName|!singularize>> could not be found
+        The requested resource could not be found but may be available again in the future.
+        *For example:* A resource was requested, but could not be found
+        *For example:* The client polls for the event status - the event record cannot be found, please try again
+      body:
+        application/json:
+          schema: <<infoSchema>>
+          example: <<sample404Resp>>
+
+ client-error-response-methodnotallowed:
+  responses:
+    405:
+      description: |
+        **Method Not Allowed**
+        A request was made of a resource using a request method not supported by that resource; for example, using GET on a form which requires data to be presented via POST, or using PUT on a read-only resource.
+      body:
+        application/json:
+          schema: <<infoSchema>>
+          example: <<sample405Resp>>
+
+ client-error-response-notacceptable:
+  responses:
+    406:
+      description: |
+        **Not Acceptable**
+        The requested resource is only capable of generating content not acceptable according to the Accept headers sent in the request.
+        Note that the Mule Anykit component used in API implementations is known not to completely correctly support the Accept parameter. 
+      body:
+        application/json:
+          schema: <<infoSchema>>
+          example: <<sample406Resp>>
+
+ client-error-response-unsupportedmedia:
+  responses:
+    415:
+      description: |
+        **Unsupported Media/Content Type**
+        The entity sent in the request (content in a PUT or POST) has an unsupported mediatype or
+        the server does not meet one of the preconditions that the requester put on the request.
+        Business prerequisites have not been meet.
+        *For example:* trying to create a policy before the customer has been created
+      body:
+        application/json:
+          schema: <<infoSchema>>
+          example: |
+            {
+              "responseInfo":{
+                "id": "{guid}",
+                "code": "0415",
+                "status": "ERROR_4XX_CLIENT",
+                "message": "Unsupported Media Type",
+                "description": "The request entity has a media type which the server or resource does not support"
+              }
+            }
+
+ client-error-responses:
+  responses:
+    400:
+      description: |
+        **Bad Request**
+        The request cannot be fulfilled due to bad syntax	.
+        *For example:* The request did not match the schema (schema validation failed)
+      body:
+        application/json:
+          schema: <<infoSchema>>
+          example: <<sample400Resp>>
+    404:
+      description: |
+        **Not Found**
+        The <<resourcePathName|!singularize>> could not be found
+        The requested resource could not be found but may be available again in the future.
+        *For example:* A resource was requested, but could not be found
+        *For example:* The client polls for the event status - the event record cannot be found, please try again
+      body:
+        application/json:
+          schema: <<infoSchema>>
+          example: <<sample404Resp>>
+    405:
+      description: |
+        **Method Not Allowed**
+        A request was made of a resource using a request method not supported by that resource; for example, using GET on a form which requires data to be presented via POST, or using PUT on a read-only resource
+      body:
+        application/json:
+          schema: <<infoSchema>>
+          example: <<sample405Resp>>
+    406:
+      description: |
+        **Not Acceptable**
+        The requested resource is only capable of generating content not acceptable according to the Accept headers sent in the request
+      body:
+        application/json:
+          schema: <<infoSchema>>
+          example: <<sample406Resp>>
+
+    410:
+      description: |
+        **Gone**
+        Indicates that the resource requested (for that ID) is no longer available and will not be available again.
+        *For example:* The client polls for the event status - the event store does not contain a record for this event
+      body:
+        application/json:
+          schema: <<infoSchema>>
+          example: |
+            {
+              "responseInfo":{
+                "id": "{guid}",
+                "status": "ERROR_4XX_CLIENT",
+                "message": "Resource Not Found",
+                "description": "The resource is no longer available"
+              }
+            }
+    415:
+      description: |
+        **Unsupported Media Type**
+        The server does not meet one of the preconditions that the requester put on the request.
+        Business prerequisites have not been meet.
+        *For example:* trying to create a policy before the customer has been created
+      body:
+        application/json:
+          schema: <<infoSchema>>
+          example: |
+            {
+              "responseInfo":{
+                "id": "{guid}",
+                "status": "ERROR_4XX_CLIENT",
+                "message": "Unsupported Media Type",
+                "description": "The request entity has a media type which the server or resource does not support"
+              }
+            }
+
+ server-error-responses:
+  responses:
+    500:
+      description: |
+        **Internal Server Error**
+        A generic error message, given when an unexpected condition was encountered and no more specific message is suitable.
+      body:
+        application/json:
+          schema: <<infoSchema>>
+          example: |
+            {
+              "responseInfo":{
+                "id": "{guid}",
+                "code": "0500",
+                "status": "ERROR_5XX_SERVER",
+                "message": "Internal Server Error",
+                "description": "The server encountered an unexpected error"
+              }
+            }
+
+
+ traceable:
+  headers:
+    X-Forwarded-For:
+      description: Gives the address of the client which connected to the proxy.
+      type: string
+      required: false
+      example: |
+        X-Forwarded-For: 10.17.253.23
+
+
+ throttled:
+  responses:
+    429:
+      description: The users have sent too many requests in a given amount of time (rate limiting).
+      headers:
+        retry-after:
+          description: Amount of time to retry after
+          example: |
+            60

@@ -1,0 +1,67 @@
+ item-get:
+  description: Entity representing a <<resourcePathName|!singularize>>
+  securedBy: [ JWT ]
+  is: [ server-error-responses: { infoSchema: <<infoSchema>> } ,pragma-no-body ]
+  get:
+    description: |
+      Get the <<resourcePathName>>
+      with <<resourcePathName>>Id =
+      {<<resourcePathName>>Id}
+    is: [
+          valid-item-response: { respSchema: <<respSchema>>, sample200Resp: <<sample200Resp>> },
+          client-error-response-badrequest: { infoSchema: <<infoSchema>>,sample400Resp: <<sample400Resp>> },
+          client-error-response-forbidden: { infoSchema: <<infoSchema>>,sample403Resp: <<sample403Resp>> },
+          client-error-response-unauthorized: { infoSchema: <<infoSchema>>, sample401Resp: <<sample401Resp>> },
+          client-error-response-notfound: { infoSchema: <<infoSchema>>, sample404Resp: <<sample404Resp>> },
+          client-error-response-methodnotallowed: { infoSchema: <<infoSchema>>, sample405Resp: <<sample405Resp>> },
+          client-error-response-notacceptable: { infoSchema: <<infoSchema>>, sample406Resp: <<sample406Resp>> }
+        ]
+
+
+ collection-get:
+   description: Collection of available <<resourcePathName>> 
+   securedBy: [ JWT ]
+   is: [ server-error-responses: { infoSchema: <<infoSchema>> } ]
+   get:
+     description: Get a list of <<resourcePathName>>
+     is: [
+           valid-collection-response: { collectionRespSchema: <<respSchema>>, sample200CollectionResp: <<sample200CollectionResp>> },
+           client-error-response-forbidden: { infoSchema: <<infoSchema>>, sample403Resp: <<sample403Resp>> },
+           client-error-response-unauthorized: { infoSchema: <<infoSchema>>, sample401Resp: <<sample401Resp>> },
+           client-error-responses: { infoSchema: <<infoSchema>>, sample400Resp: <<sample400Resp>>, sample404Resp: <<sample404Resp>> ,sample405Resp: <<sample405Resp>>,sample406Resp: <<sample406Resp>> }
+         ]
+
+ item-post-sync:
+   description: Entity representing a <<resourcePathName|!singularize>>
+   securedBy: [ JWT ]
+   post:
+     description: Create a new <<resourcePathName|!singularize>>.
+     is: [
+           valid-createitem-sync-response: { respSchema: <<postRespSchema>>, sample200Resp: <<postSample200Resp>> },
+           client-error-response-forbidden: { infoSchema: <<infoSchema>>, sample403Resp: <<sample403Resp>> },
+           client-error-response-unauthorized: { infoSchema: <<infoSchema>>, sample401Resp: <<sample401Resp>> },
+           client-error-response-badrequest: { infoSchema: <<infoSchema>>, sample400Resp: <<sample400Resp>> },
+           client-error-response-methodnotallowed: { infoSchema: <<infoSchema>>, sample405Resp: <<sample405Resp>> },
+           client-error-response-notacceptable: { infoSchema: <<infoSchema>>, sample406Resp: <<sample406Resp>> },
+           client-error-response-unsupportedmedia: { infoSchema: <<infoSchema>>}
+         ]
+     body:
+       application/json:
+         schema: <<postReqSchema>>
+         example: <<postSampleReq>>
+
+ item-put:
+   description: Update  entity representing a <<resourcePathName|!singularize>>
+   put:
+     description: Update a <<resourcePathName|!singularize>>
+     is: [
+           client-error-responses: { infoSchema: <<infoSchema>>,sample400Resp: <<sample400Resp>> ,  sample404Resp: <<sample404Resp>>,sample405Resp: <<sample405Resp>> ,sample406Resp: <<sample406Resp>>},
+           client-error-response-unauthorized: { infoSchema: <<infoSchema>>, sample401Resp: <<sample401Resp>> },
+           client-error-response-forbidden: { infoSchema: <<infoSchema>>, sample403Resp: <<sample403Resp>> },
+           valid-createitem-sync-response: { respSchema: <<respSchema>>, sample200Resp: <<putSample200Resp>> },
+           server-error-responses: { infoSchema: <<infoSchema>> }
+         ]
+     body:
+       application/json:
+         schema: <<reqSchema>>
+         example: <<putSampleReq>>

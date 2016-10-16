@@ -19,6 +19,9 @@ namespace UnitTestProject1.EAFacade
         //public EAElement META_DATAITEM;
         public EAElement META_RELEASEPIPELINE;
         public EAElement META_ENVIRONMENT;
+        public EAElement META_PERMISSION;
+        public EAElement META_QUERY_PARAMETER;
+
 
         public EAPackage apiPackage = null;
         public EAPackage soaPackage = null;
@@ -46,6 +49,8 @@ namespace UnitTestProject1.EAFacade
             //META_DATAITEM = new EAElement();
             META_RELEASEPIPELINE = new EAElement();
             META_ENVIRONMENT = new EAElement();
+            META_PERMISSION = new EAElement();
+            META_QUERY_PARAMETER = new EAElement();
 
             META_API.Name = APIAddinClass.METAMODEL_API;
             META_RESOURCE.Name = APIAddinClass.METAMODEL_RESOURCE;
@@ -57,6 +62,8 @@ namespace UnitTestProject1.EAFacade
             //META_DATAITEM.Name = APIAddInClass.METAMODEL_DATAITEM;
             META_RELEASEPIPELINE.Name = APIAddinClass.METAMODEL_RELEASEPIPELINE;
             META_ENVIRONMENT.Name = APIAddinClass.METAMODEL_ENVIRONMENT;
+            META_PERMISSION.Name = APIAddinClass.METAMODEL_PERMISSION;
+            META_QUERY_PARAMETER.Name = APIAddinClass.METAMODEL_QUERY_PARAMETER;
 
             apiPackage = new EAPackage("UnitTest");
 

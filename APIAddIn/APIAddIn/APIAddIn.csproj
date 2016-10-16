@@ -58,6 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="APIManager.cs" />
+    <Compile Include="DataTypeManager.cs" />
     <Compile Include="DependencyManager.cs" />
     <Compile Include="DiagramManager.cs" />
     <Compile Include="FileManager.cs" />

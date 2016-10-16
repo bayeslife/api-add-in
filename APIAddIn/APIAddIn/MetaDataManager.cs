@@ -7,8 +7,18 @@ using System.Windows.Forms;
 
 namespace APIAddIn
 {
+   
+
     public class MetaDataManager
     {
+
+        static Logger logger = new Logger();
+
+        static public void setLogger(Logger l)
+        {
+            logger = l;
+        }
+
         static public IList<EA.Element> diagramSamples(EA.Repository Repository,EA.Diagram diagram)
         {
             List<EA.Element> samples = new List<EA.Element>();             
@@ -40,7 +50,9 @@ namespace APIAddIn
         public static IList<EA.Element> diagramElements(EA.Repository Repository)
         {
             List<EA.Element> samples = new List<EA.Element>();
-            EA.Diagram diagram = Repository.GetCurrentDiagram();
+            EA.Diagram diagram = null;
+            if (Repository.GetContextItemType() == EA.ObjectType.otDiagram)
+                diagram = Repository.GetContextObject(); 
 
 
             foreach (EA.DiagramObject diagramObject in diagram.DiagramObjects)
@@ -86,15 +98,22 @@ namespace APIAddIn
             diagram.Update();
         }
 
-        public static bool filterMethod(EA.Connector con, EA.Element e, EA.Element classifier)
+        public static bool filterMethod(EA.Repository Repository, EA.Connector con, EA.Element e, EA.Element classifier)
         {
             if (classifier != null && classifier.Name.Equals(APIAddinClass.METAMODEL_METHOD))
                 return true;
             return false;
         }
-        public static bool filterQueryParameter(EA.Connector con, EA.Element e, EA.Element classifier)
+        public static bool filterQueryParameter(EA.Repository Repository, EA.Connector con, EA.Element e, EA.Element classifier)
         {
             if (classifier != null && classifier.Name.Equals(APIAddinClass.METAMODEL_QUERY_PARAMETER))
+                return true;
+            return false;
+        }
+
+        public static bool filterPermission(EA.Repository Repository, EA.Connector con, EA.Element e, EA.Element classifier)
+        {
+            if (classifier != null && classifier.Name.Equals(APIAddinClass.METAMODEL_PERMISSION))
                 return true;
             return false;
         }
@@ -106,14 +125,14 @@ namespace APIAddIn
             return false;
         }
 
-        public static bool filterResource(EA.Connector con, EA.Element e, EA.Element classifier)
+        public static bool filterResource(EA.Repository Repository, EA.Connector con, EA.Element e, EA.Element classifier)
         {
             if (classifier != null && classifier.Name.Equals(APIAddIn.APIAddinClass.METAMODEL_RESOURCE))
                 return true;
             return false;
         }
 
-        public static bool filterTypeForResource(EA.Connector con, EA.Element e, EA.Element classifier)
+        public static bool filterTypeForResource(EA.Repository Repository, EA.Connector con, EA.Element e, EA.Element classifier)
         {
             if (classifier != null && classifier.Name.Equals(APIAddIn.APIAddinClass.METAMODEL_TYPE_FOR_RESOURCE))
                 return true;
@@ -127,7 +146,7 @@ namespace APIAddIn
             return false;
         }
 
-        public static bool filterSecurity(EA.Connector con, EA.Element e, EA.Element classifier)
+        public static bool filterSecurity(EA.Repository Repository, EA.Connector con, EA.Element e, EA.Element classifier)
         {
             if (classifier == null)
             {
@@ -139,14 +158,20 @@ namespace APIAddIn
                     return true;
                 else
                 {
-                    //logger.log("FFS" + classifier.Name + " " + APIAddinClass.APIAddinClassClass.METAMODEL_SECURITYSCHEME);
+                    // If the classifier is inherited from the Security Scheme in the meta model then return true
+                    EA.Collection baseClasses = classifier.BaseClasses;
+                    foreach( EA.Element baseClass in baseClasses) {
+                        if (baseClass.Name.Equals(APIAddIn.APIAddinClass.METAMODEL_SECURITYSCHEME))
+                            return true;
+                    }
+
                 }
                     
             }
             return false;
         }
 
-        public static bool filterCommunity(EA.Connector con, EA.Element e, EA.Element classifier)
+        public static bool filterCommunity(EA.Repository Repository, EA.Connector con, EA.Element e, EA.Element classifier)
         {
             if (classifier == null)
             {
@@ -165,7 +190,7 @@ namespace APIAddIn
             return false;
         }
 
-        public static bool filterTrait(EA.Connector con, EA.Element e, EA.Element classifier)
+        public static bool filterTrait(EA.Repository Repository, EA.Connector con, EA.Element e, EA.Element classifier)
         {
             if (classifier == null)
             {
@@ -184,8 +209,36 @@ namespace APIAddIn
             return false;
         }
 
+        public static bool filterRequestExample(EA.Repository Repository, EA.Connector con, EA.Element e, EA.Element classifier)
+        {            
+            if (classifier != null)
+            {                
+                if (classifier.Name.Equals(APIAddIn.APIAddinClass.METAMODEL_PLACEHOLDER))
+                {                    
+                    if (con.SupplierEnd.Role == "Request")
+                    {                 
+                        return true;
+                    }
+                        
+                }
+            }
+            return false;
+        }
+        public static bool filterResponseExample(EA.Repository Repository, EA.Connector con, EA.Element e, EA.Element classifier)
+        {            
+            if (classifier != null)
+            {
+                if (classifier.Name.Equals(APIAddIn.APIAddinClass.METAMODEL_PLACEHOLDER))
+                {
+                    if(con.SupplierEnd.Role=="Response")
+                        return true;
+                }                                    
+            }
+            return false;
+        }
 
-        public static bool filterReleasePipeline(EA.Connector con, EA.Element e, EA.Element classifier)
+
+        public static bool filterReleasePipeline(EA.Repository Repository, EA.Connector con, EA.Element e, EA.Element classifier)
         {
             if (classifier == null)
             {
@@ -204,7 +257,7 @@ namespace APIAddIn
             return false;
         }
 
-        public static bool filterEnvironment(EA.Connector con, EA.Element e, EA.Element classifier)
+        public static bool filterEnvironment(EA.Repository Repository, EA.Connector con, EA.Element e, EA.Element classifier)
         {
             if (classifier == null)
             {
@@ -224,9 +277,9 @@ namespace APIAddIn
         }
 
 
-        public static bool filterSample(EA.Connector con, EA.Element e, EA.Element classifier)
+        public static bool filterSample(EA.Repository Repository, EA.Connector con, EA.Element e, EA.Element classifier)
         {
-            if (!filterObject(con, e, classifier))
+            if (!filterObject(Repository, con, e, classifier))
                 return false;
             if (classifier == null)
             {
@@ -246,21 +299,21 @@ namespace APIAddIn
         }
 
 
-        public static bool filterSchema(EA.Connector con, EA.Element e, EA.Element classifier)
+        public static bool filterSchema(EA.Repository Repository,EA.Connector con, EA.Element e, EA.Element classifier)
         {
             if (e.Type.Equals(APIAddIn.APIAddinClass.EA_TYPE_CLASS))
                 return true;
             return false;
         }
 
-        public static bool filterClass(EA.Connector con, EA.Element e, EA.Element classifier)
+        public static bool filterClass(EA.Repository Repository, EA.Connector con, EA.Element e, EA.Element classifier)
         {
             if (e.Type.Equals(APIAddIn.APIAddinClass.EA_TYPE_CLASS))
                 return true;
             return false;
         }
 
-        public static bool filterObject(EA.Connector con, EA.Element e, EA.Element classifier)
+        public static bool filterObject(EA.Repository Repository, EA.Connector con, EA.Element e, EA.Element classifier)
         {
             if (classifier != null && e.Type.Equals(APIAddIn.APIAddinClass.EA_TYPE_OBJECT))
                 return true;
@@ -278,14 +331,14 @@ namespace APIAddIn
             return false;
         }
 
-        public static bool filterContentType(EA.Connector con, EA.Element e, EA.Element classifier)
+        public static bool filterContentType(EA.Repository Repository, EA.Connector con, EA.Element e, EA.Element classifier)
         {
             if (classifier != null && classifier.Name.Equals(APIAddIn.APIAddinClass.METAMODEL_CONTENTTYPE))
                 return true;
             return false;
         }
 
-        public static bool filterDataItem(EA.Connector con, EA.Element e, EA.Element classifier)
+        public static bool filterDataItem(EA.Repository Repository, EA.Connector con, EA.Element e, EA.Element classifier)
         {
             if (e != null)
             {

@@ -16,39 +16,46 @@ namespace APIAddIn
             return dependencies;
         }
 
-        public void setDependency(string dependsUpon1, string dependedUpon2)
+        public void setDependency(string dependedUpon1, string dependsUpon2)
         {
-            if (dependedUpon2 == null)
+            if (dependsUpon2 == null)
             {
-                dependencies.Add(dependsUpon1);
+                dependencies.Add(dependedUpon1);
             }
-            else if (dependsUpon1 == dependedUpon2)
+            else if (dependedUpon1 == dependsUpon2)
             {
-                return;
+                int dependedUpon1Index = dependencies.IndexOf(dependedUpon1);
+                if(dependedUpon1Index<0)
+                    dependencies.Insert(0,dependedUpon1);
+                else
+                    return;
             }
             else
             {
-                int dependsUpon1Index = dependencies.IndexOf(dependsUpon1);
-                int dependedUpon2Index = dependencies.IndexOf(dependedUpon2);
-                if (dependedUpon2Index == -1 && dependsUpon1Index == -1)
+                int dependedUpon1Index = dependencies.IndexOf(dependedUpon1);
+                int dependsUpon2Index = dependencies.IndexOf(dependsUpon2);
+                if (dependsUpon2Index == -1 && dependedUpon1Index == -1)
                 {
-                    dependencies.Add(dependsUpon1);
-                    dependencies.Add(dependedUpon2);
+                    dependencies.Add(dependedUpon1);
+                    dependencies.Add(dependsUpon2);
                 }
-                else if (dependedUpon2Index == -1)
+                else if (dependsUpon2Index == -1)
                 {
-                    dependencies.Insert(dependsUpon1Index, dependedUpon2);
+                    dependencies.Insert(dependedUpon1Index+1, dependsUpon2);
                 }
-                else if (dependsUpon1Index == -1)
+                else if (dependedUpon1Index == -1)
                 {
-                    dependencies.Insert(0, dependsUpon1);
+                    dependencies.Insert(dependsUpon2Index, dependedUpon1);
                 }
                 else
                 {
-                    if (dependsUpon1Index > dependedUpon2Index)
+                    if (dependedUpon1Index > dependsUpon2Index)
                     {
-                        dependencies.RemoveAt(dependsUpon1Index);
-                        dependencies.Insert(dependedUpon2Index, dependsUpon1);
+                        //dependencies.RemoveAt(dependedUpon1Index);
+                        //dependencies.Insert(dependsUpon2Index, dependedUpon1);
+
+                        dependencies.RemoveAt(dependsUpon2Index);
+                        dependencies.Insert(dependedUpon1Index, dependsUpon2);
                     }
                 }
 
