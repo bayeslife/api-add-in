@@ -32,7 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Interop.EA">
-      <HintPath>C:\Program Files (x86)\Sparx Systems\EA\Interop.EA.dll</HintPath>
+      <HintPath>..\..\..\..\..\Program Files\Sparx Systems\EA\Interop.EA.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="Newtonsoft.Json">
@@ -42,7 +42,7 @@
       <HintPath>..\packages\Newtonsoft.Json.Schema.2.0.2\lib\net45\Newtonsoft.Json.Schema.dll</HintPath>
     </Reference>
     <Reference Include="SVGExport">
-      <HintPath>C:\Program Files (x86)\Siemens\EA SVG Export\SVGExport.dll</HintPath>
+      <HintPath>..\..\..\..\..\Program Files\Siemens\EA SVG Export\SVGExport.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -67,13 +67,23 @@
     <Compile Include="MetaDataManager.cs" />
     <Compile Include="ObjectManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
     <Compile Include="SampleManager.cs" />
     <Compile Include="SchemaManager.cs" />
     <Compile Include="ValidationErrors.cs" />
     <Compile Include="WSDLManager.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\YamlDotNet\YamlDotNet.csproj">

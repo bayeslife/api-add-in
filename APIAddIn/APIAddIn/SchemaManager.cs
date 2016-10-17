@@ -94,7 +94,6 @@ namespace APIAddIn
             EA.Package schemaPackage = Repository.GetPackageByID(diagram.PackageID);
             EA.Package apiPackage = Repository.GetPackageByID(schemaPackage.ParentID);
 
-            string msg = "";
             IList<EA.Element> classes = MetaDataManager.diagramClasses(Repository, diagram);
 
             Dictionary<string, JSchema> schemas = new Dictionary<string, JSchema>();
@@ -703,7 +702,7 @@ namespace APIAddIn
                     if (s != null)
                         continue;
                 }
-                catch (KeyNotFoundException ex)
+                catch (KeyNotFoundException)
                 {
                 }
   
@@ -941,11 +940,11 @@ namespace APIAddIn
                 EA.Element attrnew = null;
                 try{
                     attrnew = Repository.GetElementByID(int.Parse(rs.reference));
-                }catch (Exception e){}
+                }catch (Exception){}
                 EA.Attribute attr = null;
                 try{
                     attr = Repository.GetAttributeByID(int.Parse(rs.reference));
-                }catch (Exception e){}
+                }catch (Exception){}
                 if(attr!=null || attrnew!=null)
                 {
                     String nm = null;

@@ -57,6 +57,14 @@ namespace APIAddIn
                 return result;
         }
 
+        public string diagramPath(string page, string name)
+        {
+            string result = path + @"\content\" + page + "---" + name + ".svg";
+            if (logger != null)
+                logger.log("FilePath:" + result);
+            return result;
+        }
+
         public string samplePath(string sampleName,string classifierName)
         {
             string result = apiDirectoryPath(apiPackageName, APIAddinClass.RAML_0_8) + @"samples\" + sampleName + "-sample."+classifierName+".json";
