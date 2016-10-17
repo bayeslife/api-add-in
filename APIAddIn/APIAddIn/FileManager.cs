@@ -10,6 +10,8 @@ namespace APIAddIn
     public class FileManager
     {
         string path = "d:\\generated";
+        string diagrampath = "d:\\tmp";
+
         Logger logger = null;
         string apiPackageName;
         //string canonicalPackageName;
@@ -23,6 +25,11 @@ namespace APIAddIn
         public void setBasePath(string path)
         {
             this.path = path;
+        }
+
+        public void setDiagramPath(string path)
+        {
+            this.diagrampath = path;
         }
 
         public string apiDirectoryPath(string apiName,double version)

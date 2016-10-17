@@ -5,5 +5,8 @@
     <Setting Name="BasePath" Type="System.String" Scope="User">
       <Value Profile="(Default)">C:\\Generated</Value>
     </Setting>
+    <Setting Name="DiagramPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\\Generated</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

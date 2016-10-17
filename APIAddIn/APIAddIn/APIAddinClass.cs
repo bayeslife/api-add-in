@@ -134,11 +134,12 @@ namespace APIAddIn
             try
             {
                 fileManager.setBasePath(Properties.Settings.Default.BasePath);
+                fileManager.setDiagramPath(Properties.Settings.Default.DiagramPath);
             }
             catch (Exception)
             {
-                logger.log("Did not find BasePath in user settings");
-            }            
+                logger.log("Did not find BasePath or DiagramPath in user settings");
+            }
 
             DiagramManager.setLogger(logger);
             APIManager.setLogger(logger);

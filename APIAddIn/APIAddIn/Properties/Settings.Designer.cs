@@ -34,5 +34,17 @@ namespace APIAddIn.Properties {
                 this["BasePath"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\\\Generated")]
+        public string DiagramPath {
+            get {
+                return ((string)(this["DiagramPath"]));
+            }
+            set {
+                this["DiagramPath"] = value;
+            }
+        }
     }
 }
