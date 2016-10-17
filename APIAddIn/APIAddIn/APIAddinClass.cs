@@ -142,6 +142,7 @@ namespace APIAddIn
             }
 
             DiagramManager.setLogger(logger);
+            DiagramManager.setFileManager(fileManager);
             APIManager.setLogger(logger);
             APIManager.setFileManager(fileManager);
             SchemaManager.setLogger(logger);
