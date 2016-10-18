@@ -140,9 +140,9 @@ namespace APIAddIn
         }
 
 
-        static private object convertEATypeToValue(string t,string value)
+        static public object convertEATypeToValue(string t,string value)
         {
-            if (t.Equals(APIAddinClass.EA_TYPE_NUMBER))
+            if (t.Equals(APIAddinClass.EA_TYPE_NUMBER) || t.Equals(APIAddinClass.EA_TYPE_FLOAT))
             {
                 try
                 {
@@ -150,20 +150,9 @@ namespace APIAddIn
                 }
                 catch (FormatException e)
                 {
-                    return 0;
+                    return 0;// "Not a number:"+ value;
                 }
-            }
-            if (t.Equals(APIAddinClass.EA_TYPE_FLOAT))
-            {
-                try
-                {
-                    return float.Parse(value);
-                }
-                catch (FormatException)
-                {
-                    return 0;
-                }              
-            }
+            }            
             if (t.Equals(APIAddinClass.EA_TYPE_INT))
             {
                 try
