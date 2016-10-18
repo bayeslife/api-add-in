@@ -99,7 +99,7 @@ namespace APIAddIn
 
             reifyRunState(Repository, apiEl, map);
 
-            try{  map.Add("baseUri", "https://{environment}"); }catch(Exception e){ /*do nothing is fine*/ }            
+            try{  map.Add("baseUri", "https://{environment}"); }catch(Exception){ /*do nothing is fine*/ }            
 
             YamlMappingNode bps = new YamlMappingNode();
             map.Add("baseUriParameters", bps);
@@ -343,7 +343,7 @@ namespace APIAddIn
                 {
                     methodProps.Add(key, rs[key].value);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     //ignore on purpose
                 }                
@@ -476,7 +476,7 @@ namespace APIAddIn
                 {
                     props.Add(key, rs[key].value);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     logger.log("Problem with adding QueryParameter RunState. The [" + key + "] already exists");
                 }                

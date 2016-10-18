@@ -38,6 +38,8 @@ namespace APIAddIn
                 repository.EnsureOutputVisible("IAG");
                 repository.ClearOutput("IAG");
                 log("Logger is enabled");
+                string version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+                log("APIAddIn version " + version);
             }
         }
 

@@ -9,7 +9,9 @@ namespace APIAddIn
     /* This class manages the writing of documents to the file system */
     public class FileManager
     {
-        string path = "d:\\generated";
+        public string path = "d:\\generated";
+        public string diagrampath = "d:\\tmpx";
+
         Logger logger = null;
         string apiPackageName;
         //string canonicalPackageName;
@@ -23,6 +25,11 @@ namespace APIAddIn
         public void setBasePath(string path)
         {
             this.path = path;
+        }
+
+        public void setDiagramPath(string path)
+        {
+            this.diagrampath = path;
         }
 
         public string apiDirectoryPath(string apiName,double version)
@@ -55,6 +62,14 @@ namespace APIAddIn
                 ////if (logger != null)
                 ////    logger.log("FilePath:" + result);
                 return result;
+        }
+
+        public string diagramPath(string page, string name)
+        {
+            string result = diagrampath + @"\content\" + page + "---" + name + ".svg";
+            if (logger != null)
+                logger.log("FilePath:" + result);
+            return result;
         }
 
         public string samplePath(string sampleName,string classifierName)

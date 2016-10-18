@@ -356,7 +356,7 @@ namespace APIAddIn
             if (package.Name == "CommonDataModel"){
                 //MessageBox.Show("Is CDM Pkg");
                 return true;
-            } else if (package.ParentID == null || package.ParentID == 0){
+            } else if (package.ParentID == 0){
                 //MessageBox.Show("Is not CDM Pkg");
                 return false;
             }                
