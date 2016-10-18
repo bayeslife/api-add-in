@@ -159,7 +159,7 @@ namespace APIAddIn
                 {
                     return float.Parse(value);
                 }
-                catch (FormatException e)
+                catch (FormatException)
                 {
                     return 0;
                 }              
@@ -170,7 +170,7 @@ namespace APIAddIn
                 {
                     return int.Parse(value);
                 }
-                catch (FormatException e)
+                catch (FormatException)
                 {
                     return 0;
                 }
@@ -187,7 +187,7 @@ namespace APIAddIn
                 {
                     return bool.Parse(value);
                 }
-                catch (FormatException e)
+                catch (FormatException)
                 {
                     return false;
                 }
@@ -199,7 +199,7 @@ namespace APIAddIn
                 {
                     return float.Parse(value);
                 }
-                catch (FormatException e)
+                catch (FormatException)
                 {
                     return 0;
                 }
@@ -247,8 +247,6 @@ namespace APIAddIn
         static public Hashtable sampleToJObject(EA.Repository Repository, EA.Diagram diagram)
         {
             Hashtable result = new Hashtable();
-            //logger.log("Export Sample");
-            string msg = "";
 
             IList<EA.Element> clazzes = MetaDataManager.diagramClasses(Repository, diagram);
 
@@ -420,7 +418,7 @@ namespace APIAddIn
                                     try{
                                         if(con.SupplierEnd.Role.Length>0)
                                             propertyName = con.SupplierEnd.Role;
-                                    }catch (Exception ex) {  }
+                                    }catch (Exception) {  }
 
                                     JProperty p = jsonClass.Property(propertyName);
                                     if (p == null){
@@ -441,7 +439,7 @@ namespace APIAddIn
                                         try {
                                             if(con.SupplierEnd.Role.Length>0)
                                                 propertyName = con.SupplierEnd.Role;
-                                        }catch(Exception ex){ }                                    
+                                        }catch(Exception){ }                                    
                                     //logger.log("Adding property:" + related.Name);
                                     jsonClass.Add(new JProperty(propertyName, instances[related.ElementID]));
                                 }

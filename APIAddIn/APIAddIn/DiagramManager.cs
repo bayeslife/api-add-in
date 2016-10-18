@@ -14,6 +14,7 @@ namespace APIAddIn
     public class DiagramManager
     {
         static Logger logger = new Logger();
+        static FileManager fileManager = new FileManager(null);
 
         static List<int> diagramLinks = null;
 
@@ -22,6 +23,10 @@ namespace APIAddIn
             logger = l;
         }
 
+        static public void setFileManager(FileManager fm)
+        {
+            fileManager = fm;
+        }
 
         static public bool isVisible(EA.Connector con)
         {
@@ -54,6 +59,7 @@ namespace APIAddIn
             }
             return result;
         }
+
         static public List<string> querySchemaDiagrams(EA.Repository Repository)
         {
 
@@ -67,6 +73,7 @@ namespace APIAddIn
             }
             return result;
         }
+
         static public List<string> querySampleDiagrams(EA.Repository Repository)
         {
 
@@ -104,9 +111,9 @@ namespace APIAddIn
                 string[] pages = confluencedata.Split(delimiter);
                 foreach (string page in pages)
                 {
-                    string file = @"d:\tmp\content\" + page + "---" + diagram.Name + ".svg";
-                    logger.log(file);
-                    SVGExport.EAPlugin.SaveDiagramAsSvg(Repository, diagram, file);
+                    string fullpath = fileManager.diagramPath(page, diagram.Name);
+                    logger.log(fullpath);
+                    SVGExport.EAPlugin.SaveDiagramAsSvg(Repository, diagram, fullpath);
                 }
             }
 

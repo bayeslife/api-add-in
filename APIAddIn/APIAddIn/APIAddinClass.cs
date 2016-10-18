@@ -130,11 +130,20 @@ namespace APIAddIn
         /// a string
         public String EA_Connect(EA.Repository Repository)
         {
-            //No special processing required.
-            
             logger.setRepository(Repository);
 
+            try
+            {
+                fileManager.setBasePath(Properties.Settings.Default.BasePath);
+                fileManager.setDiagramPath(Properties.Settings.Default.DiagramPath);
+            }
+            catch (Exception)
+            {
+                logger.log("Did not find BasePath or DiagramPath in user settings");
+            }
+
             DiagramManager.setLogger(logger);
+            DiagramManager.setFileManager(fileManager);
             APIManager.setLogger(logger);
             APIManager.setFileManager(fileManager);
             SchemaManager.setLogger(logger);
