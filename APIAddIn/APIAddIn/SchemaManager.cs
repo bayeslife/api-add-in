@@ -25,11 +25,15 @@ namespace APIAddIn
             fileManager = fm;
         }
 
-        static private JSchema convertEATypeToJSchemaType(string t)
+        static public JSchema convertEATypeToJSchemaType(string t)
         {
             if (APIAddinClass.EA_TYPE_CURRENCY.ToLower().Equals(t.ToLower()))
             {
                 return DataTypeManager.getCurrencyType();
+            }
+            if (APIAddinClass.EA_TYPE_NUMBER.ToLower().Equals(t.ToLower()))
+            {
+                return DataTypeManager.getNumberType();
             }
             if (APIAddinClass.EA_TYPE_DECIMAL.ToLower().Equals(t.ToLower()))
             {
@@ -369,7 +373,7 @@ namespace APIAddIn
             JSchema schema = (JSchema)context;
 
             String s = getDataItemType(attr);
-            //logger.log("Got data item type" + s);
+            logger.log("Got data item type" + s);
             JSchema attributeSchema = SchemaManager.convertEATypeToJSchemaType(s);
             //logger.log("Got attribute schema");
             {

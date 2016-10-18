@@ -49,6 +49,7 @@ namespace APIAddIn
         public static string EA_TYPE_INT = "int";
         public static string EA_TYPE_DECIMAL = "decimal";
         public static string EA_TYPE_FLOAT = "float";
+        public static string EA_TYPE_NUMBER = "number";
         public static string EA_TYPE_DATE = "date";
         public static string EA_TYPE_DATETIME = "datetime";
         public static string EA_TYPE_STRING = "String";

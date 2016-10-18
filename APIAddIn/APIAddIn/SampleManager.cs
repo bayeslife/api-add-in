@@ -142,6 +142,17 @@ namespace APIAddIn
 
         static private object convertEATypeToValue(string t,string value)
         {
+            if (t.Equals(APIAddinClass.EA_TYPE_NUMBER))
+            {
+                try
+                {
+                    return float.Parse(value);
+                }
+                catch (FormatException e)
+                {
+                    return 0;
+                }
+            }
             if (t.Equals(APIAddinClass.EA_TYPE_FLOAT))
             {
                 try
@@ -307,13 +318,26 @@ namespace APIAddIn
                         {
                             // Check relation is named the same as the run state attribute name and is an enumeration
                             EA.Element related = Repository.GetElementByID(con.SupplierID);
-                            if (con.SupplierEnd.Role == key && related.Type == "Enumeration")
+                            if (con.SupplierEnd.Role == key && related.Type == APIAddinClass.EA_TYPE_ENUMERATION)
                             {
                                 //if (con.SupplierEnd.Cardinality.Equals(APIAddinClass.CARDINALITY_0_TO_MANY))
                                 //{
                                     //logger.log("  matching enum with 0..*:" + con.SupplierEnd.Cardinality);
                                 //}
                                 attrType = related.Type;
+                                attrUpperBound = con.SupplierEnd.Cardinality;
+                                break;
+                            }
+                        }
+
+                        // Check if attribute is defined as related DataItem
+                        foreach (EA.Connector con in clazz.Connectors)
+                        {
+                            // Check relation is named the same as the run state attribute name and is an enumeration
+                            EA.Element related = Repository.GetElementByID(con.SupplierID);
+                            if (con.SupplierEnd.Role == key && related.Stereotype == APIAddinClass.EA_STEREOTYPE_DATAITEM)
+                            {
+                                attrType = SchemaManager.getDataItemType(related);                                
                                 attrUpperBound = con.SupplierEnd.Cardinality;
                                 break;
                             }
@@ -340,12 +364,14 @@ namespace APIAddIn
                         {
                             // Not array so convert and add attribute and formatted value
                             o = convertEATypeToValue(attrType, runstate[key].value);
+                            logger.log("Attr:" + attrType + " " + o.ToString());
                             jsonClass.Add(new JProperty(key, o));
                         }
                     }
                     else
                     {
                         // No classifier found so add as object serialized as string
+                        logger.log("Attr:" + key + "-" + o.ToString());
                         jsonClass.Add(new JProperty(key, o));
                     }                                            
                 }

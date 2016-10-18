@@ -4,6 +4,7 @@ using System.IO;
 using YamlDotNet.Core;
 using YamlDotNet.Serialization;
 using YamlDotNet.RepresentationModel;
+using Newtonsoft.Json.Schema;
 
 namespace APIAddIn
 {
@@ -513,12 +514,29 @@ namespace APIAddIn
                 props.Add("description", e.Notes);
 
             string type = SchemaManager.getDataItemType(e);
-            if (type != null && type.Length>0)
-                props.Add("type", type);
+            JSchema attributeSchema = SchemaManager.convertEATypeToJSchemaType("string");
+            if (type != null && type.Length > 0)
+                attributeSchema = SchemaManager.convertEATypeToJSchemaType(type);
+
+
+            if (type != null && type.Length > 0)
+            {            
+                props.Add("type", attributeSchema.Type.ToString().ToLower());
+            }
+                
 
             string example = SchemaManager.getDataItemExample(e);
-            if (example != null && example.Length>0)
-                props.Add("example", "\""+example+"\"");
+            if (example != null && example.Length > 0)
+            {
+                if (attributeSchema.Type== JSchemaType.String)
+                {
+                    props.Add("example", "\"" + example + "\"");
+                }else
+                {
+                    props.Add("example", example );
+                }
+            }
+                
             
             return props;
         }
