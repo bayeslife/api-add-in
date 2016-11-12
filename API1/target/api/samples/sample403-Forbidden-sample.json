@@ -1,9 +1,0 @@
-{
-  "responseInfo":{
-    "id": "{guid}",
-    "code" : "0403",
-    "status": "4XX_CLIENT_ERROR",
-    "message": "Forbidden",
-    "description": "The user does not have the correct permissions to access this resource"
-  }
-}

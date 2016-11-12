@@ -1,9 +1,0 @@
-{
-  "responseInfo": {
-    "id": "1234",
-    "code": "5432",
-    "status": "4XX_CLIENT_ERROR",
-    "message": "Method Not Allowed",
-    "description": "The requested method is not allowed"
-  }
-}

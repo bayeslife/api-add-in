@@ -70,44 +70,7 @@ namespace UnitTestProject1
             Assert.IsNotNull(s1);
         }
 
-        [TestMethod]
-        public void TestManageSchemaDependencies()
-        {
-            List<string> resources = new List<string>();
-
-            DependencyManager c = new DependencyManager();
-
-            List<string> ordered = c.getDependencies();
-
-            c.setDependency("class1", null);
-
-            Assert.AreEqual("class1", ordered[0]);
-
-            c.setDependency("class2", "class1");
-
-            Assert.AreEqual("class2", ordered[0]);
-            Assert.AreEqual("class1", ordered[1]);
-
-            c.setDependency("class3", "class2");
-
-            Assert.AreEqual("class3", ordered[0]);
-            Assert.AreEqual("class2", ordered[1]);
-
-            c.setDependency("class4", "class5");
-
-            Assert.AreEqual("class4", ordered[3]);
-            Assert.AreEqual("class5", ordered[4]);
-
-            c.setDependency("class6", "class3");
-
-            Assert.AreEqual("class6", ordered[0]);
-            Assert.AreEqual("class3", ordered[1]);
-
-            c.setDependency("class3", "class6");
-
-            Assert.AreEqual("class3", ordered[0]);
-            Assert.AreEqual("class6", ordered[1]);
-        }
+  
 
         [TestMethod]
         public void TestSchemaExport()
