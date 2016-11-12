@@ -307,7 +307,13 @@ namespace APIAddIn
             //    schema.Properties.Add("links", links);
             //}
 
-            
+            string b = "";
+            foreach (string s in dm.getDependencies())
+            {
+                b += s +",";
+            }
+            logger.log("DependencyOrder:" + b);
+
             JObject definitions = new JObject();
             container.ExtensionData.Add("definitions", definitions);
             foreach (string s in dm.getDependencies())

@@ -35,9 +35,9 @@ namespace APIAddIn
                 int dependedUpon1Index = dependencies.IndexOf(dependedUpon1);
                 int dependsUpon2Index = dependencies.IndexOf(dependsUpon2);
                 if (dependsUpon2Index == -1 && dependedUpon1Index == -1)
-                {
-                    dependencies.Add(dependedUpon1);
-                    dependencies.Add(dependsUpon2);
+                {                    
+                    dependencies.Insert(0,dependsUpon2);
+                    dependencies.Insert(0, dependedUpon1);
                 }
                 else if (dependsUpon2Index == -1)
                 {
