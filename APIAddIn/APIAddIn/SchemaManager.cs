@@ -97,7 +97,7 @@ namespace APIAddIn
                     EA.Package parent = Repository.GetPackageByID(pkg.ParentID);
                     return getNamespace(Repository, parent, ns);
                 }
-            return nameSpace;
+            return ns;
         }
 
         static public string getNamespace(EA.Repository Repository, EA.Element clazz )
