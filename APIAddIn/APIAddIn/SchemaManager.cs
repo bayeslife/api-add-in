@@ -25,6 +25,11 @@ namespace APIAddIn
             fileManager = fm;
         }
 
+        private static readonly Dictionary<string, string> GenTypeToJsonType = new Dictionary<string, string>
+        {
+            { "Java", "javaType" }
+        };
+
         static public JSchema convertEATypeToJSchemaType(string t)
         {
             if (APIAddinClass.EA_TYPE_CURRENCY.ToLower().Equals(t.ToLower()))
@@ -81,6 +86,29 @@ namespace APIAddIn
         }
 
 
+        static public string getNamespace(EA.Repository Repository, EA.Package pkg, string nameSpace)
+        /* Recursivly Looks through package heirarchy for namespace root and generates namespace string
+         */
+        {
+            string ns = pkg.Name + "." + nameSpace;
+            if (pkg.IsNamespace == false)
+                if (pkg.ParentID != 0)
+                {
+                    EA.Package parent = Repository.GetPackageByID(pkg.ParentID);
+                    return getNamespace(Repository, parent, ns);
+                }
+            return nameSpace;
+        }
+
+        static public string getNamespace(EA.Repository Repository, EA.Element clazz )
+            /* Looks through elements package heirarchy for namespace root and generates namespace string
+             */
+        {
+            EA.Package pkg = Repository.GetPackageByID(clazz.PackageID);
+            return getNamespace(Repository, pkg, "");
+        }
+
+
         static public KeyValuePair<string, JSchema> schemaToJsonSchema(EA.Repository Repository, EA.Diagram diagram)
             /* Exports schema diagram to JsonSchema.
              * Schema root can be defined two ways:
@@ -129,7 +157,13 @@ namespace APIAddIn
                     schema.Description = clazz.Notes.Trim().Replace("\r\n", "");                
                 schema.AllowAdditionalProperties = false;
 
-                //schema.ExtensionData.Add("javaType", "nz.co.iag.model.consumer.json." + clazz.Name);
+                // Add the class namespace from the model if language specified has a Json type
+                String ns = getNamespace(Repository, clazz);
+                if (GenTypeToJsonType.ContainsKey(clazz.Gentype))
+                    schema.ExtensionData.Add(GenTypeToJsonType[clazz.Gentype], ns + clazz.Name);
+                else
+                    logger.log("Unsupported generation type found ("+clazz.Gentype+"). Unable to add namespace to class");
+
                 schema.ExtensionData.Add("$schema", "http://json-schema.org/draft-04/schema#");
                
                 schemas.Add(clazz.Name, schema);
