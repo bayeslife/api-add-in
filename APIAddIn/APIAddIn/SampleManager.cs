@@ -511,10 +511,15 @@ namespace APIAddIn
         {
             JSchema jschema = null;
             JObject json = null;
+            String classifier = null;
             try
             {
                 //logger.log("Validate Sample");
-                json = (JObject)sampleToJObject(Repository, diagram)["json"];
+
+                Hashtable h = sampleToJObject(Repository, diagram);
+
+                json = (JObject)h["json"];
+                classifier =  (String)h["class"];
 
                 //logger.log("JObject formed");
             
@@ -533,7 +538,7 @@ namespace APIAddIn
                 }
                 if (schemaPackage == null)
                 {
-                    throw new Exception("No Schema package found");                
+                    throw new Exception("No Schemas package found");                
                 }
                             
                 EA.Diagram schemaDiagram = null;            
@@ -541,12 +546,27 @@ namespace APIAddIn
                 {
                     if (d.Stereotype != null && d.Stereotype.Equals(APIAddinClass.EA_STEREOTYPE_SCHEMADIAGRAM))
                     {
-                        schemaDiagram = d;
+
+                        logger.log("Checking diagram root:" + d.Name);
+                        Hashtable ht = SchemaManager.schemaDiagramRoot(Repository, d);
+                        EA.Element rootElement = (EA.Element)ht["class"];                        
+                        logger.log("Comparing diagram root" + rootElement.Name + " equals "+classifier);
+                        if (rootElement.Name == classifier) {
+                            logger.log("Found corresponding schema diagram:"+ d.Name);
+                            schemaDiagram = d;
+                            break;
+                        }                            
                     }
                 }
 
-                
-            
+                if (schemaDiagram == null)
+                {
+                    ModelValidationException mex = new ModelValidationException("Invalid Sample or Schema");
+                    mex.errors.messages.Add("There is no schema with a root classifier of:" + classifier);
+                    throw mex;
+                }
+                    
+                                
                 jschema = SchemaManager.schemaToJsonSchema(Repository, schemaDiagram).Value;
             }
             catch (ModelValidationException ex)

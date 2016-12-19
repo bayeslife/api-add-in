@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using System;
 using System.IO;
+using System.Collections;
 
 using EA;
 
@@ -104,8 +105,13 @@ namespace APIAddIn
             /* Looks through elements package heirarchy for namespace root and generates namespace string
              */
         {
-            EA.Package pkg = Repository.GetPackageByID(clazz.PackageID);
-            return getNamespace(Repository, pkg, "");
+            if (clazz.PackageID != 0)
+            {
+                EA.Package pkg = Repository.GetPackageByID(clazz.PackageID);
+                return getNamespace(Repository, pkg, "");
+            }
+            else
+                return "";            
         }
 
 
@@ -159,7 +165,7 @@ namespace APIAddIn
 
                 // Add the class namespace from the model if language specified has a Json type
                 String ns = getNamespace(Repository, clazz);
-                if (GenTypeToJsonType.ContainsKey(clazz.Gentype))
+                if (clazz.Gentype!=null && GenTypeToJsonType.ContainsKey(clazz.Gentype))
                     schema.ExtensionData.Add(GenTypeToJsonType[clazz.Gentype], ns + clazz.Name);
                 else
                     logger.log("Unsupported generation type found ("+clazz.Gentype+"). Unable to add namespace to class");
@@ -486,11 +492,14 @@ namespace APIAddIn
                 EA.Package apiPackage = Repository.GetPackageByID(schemaPkg.ParentID);
 
                 string sourcecontrolPackage = apiPackage.Name;
+
+                logger.log("exportSchema: source package"+ sourcecontrolPackage);
                 if (MetaDataManager.isCDMPackage(Repository, apiPackage))
                 {
                     sourcecontrolPackage = "cdm";
+                    logger.log("exportSchema: setting source package as cdm");
                 }
-
+                
                 fileManager.initializeAPI(sourcecontrolPackage);
                 fileManager.setup(APIAddinClass.RAML_0_8);
                 fileManager.exportSchema(container.Value.Title, msg);                
@@ -530,10 +539,61 @@ namespace APIAddIn
         //    }
         //}
 
+        static public Hashtable schemaDiagramRoot(EA.Repository Repository,EA.Diagram diagram)
+        {
+            string nameOfGenerated = "Generated";
+
+            DiagramManager.captureDiagramLinks(diagram);
+
+            Dictionary<int, string> possibleRoots = new Dictionary<int, string>();
+            IList<EA.Element> objects = MetaDataManager.diagramSamples(Repository, diagram);
+            foreach (EA.Element obj in objects)
+            {
+                //logger.log("Found Object:" + obj.ElementID);
+                foreach (EA.Connector conn in obj.Connectors)
+                {
+                    if (DiagramManager.isVisible(conn))
+                    {
+                        //logger.log("Possible Root:" + conn.SupplierID);
+                        if (!possibleRoots.ContainsKey(conn.SupplierID))
+                            possibleRoots.Add(conn.SupplierID, conn.SupplierEnd.Role);
+                    }
+                }
+            }
+
+            EA.Element clazz = null;
+            IList<EA.Element> clazzes = MetaDataManager.diagramClasses(Repository, diagram);
+            foreach (EA.Element diaclazz in clazzes)
+            {
+                if (possibleRoots.ContainsKey(diaclazz.ElementID))
+                {
+                    //logger.log("Found root as relation from object:"+diaclazz.Name);
+                    clazz = diaclazz;
+                    nameOfGenerated = possibleRoots[diaclazz.ElementID];
+                    break;
+                }
+                else if (diaclazz.GetStereotypeList().Contains(APIAddinClass.EA_STEREOTYPE_REQUEST))
+                {
+                    clazz = diaclazz;
+                    break;
+                }
+            }
+            if (clazz == null)
+            {
+                MessageBox.Show("Ensure there an object linked to a class or a Request stereotyped clazz on the diagram");
+                return null;
+            }
+
+            Hashtable result = new Hashtable();
+            result.Add("class", clazz);
+            result.Add("nameOfGenerated", nameOfGenerated);
+            return result;
+        }
 
         static public EA.Package generateSample(EA.Repository Repository)
         {
             string nameOfGenerated = "Generated";
+            EA.Element clazz = null;
 
             EA.Diagram diagram = null;
             if (Repository.GetContextItemType() == EA.ObjectType.otDiagram)
@@ -561,55 +621,62 @@ namespace APIAddIn
                 return null;
             }
 
-            //logger.log("Package:" + schemaPackage.Name);
-
-            DiagramManager.captureDiagramLinks(diagram);
-
-            Dictionary<int,string> possibleRoots = new Dictionary<int,string>();
-            IList<EA.Element> objects = MetaDataManager.diagramSamples(Repository, diagram);
-            foreach (EA.Element obj in objects)
-            {
-                //logger.log("Found Object:" + obj.ElementID);
-                foreach (EA.Connector conn in obj.Connectors)                
-                {
-                    if (DiagramManager.isVisible(conn))
-                    {
-                        //logger.log("Possible Root:" + conn.SupplierID);
-                        if (!possibleRoots.ContainsKey(conn.SupplierID))
-                            possibleRoots.Add(conn.SupplierID, conn.SupplierEnd.Role);
-                    }                    
-                }
-            }
-
-            EA.Element clazz = null;
-            IList<EA.Element> clazzes = MetaDataManager.diagramClasses(Repository, diagram);
-            foreach (EA.Element diaclazz in clazzes)
-            {                
-                if (possibleRoots.ContainsKey(diaclazz.ElementID))
-                {
-                    //logger.log("Found root as relation from object:"+diaclazz.Name);
-                    clazz = diaclazz;                    
-                    nameOfGenerated = possibleRoots[diaclazz.ElementID];
-                    break;
-                }
-                else if (diaclazz.GetStereotypeList().Contains(APIAddinClass.EA_STEREOTYPE_REQUEST))
-                {
-                    clazz = diaclazz;                    
-                    break;
-                }
-            }
-            if (clazz == null)
-            {
-                MessageBox.Show("Ensure there an object linked to a class or a Request stereotyped clazz on the diagram");
+            Hashtable h = schemaDiagramRoot(Repository, diagram);
+            if (h == null)
                 return null;
-            }
 
-            
+            nameOfGenerated = (String)h["nameOfGenerated"];
+            clazz = (EA.Element)h["class"];
+        
+            ////logger.log("Package:" + schemaPackage.Name);
+
+            //DiagramManager.captureDiagramLinks(diagram);
+
+            //Dictionary<int,string> possibleRoots = new Dictionary<int,string>();
+            //IList<EA.Element> objects = MetaDataManager.diagramSamples(Repository, diagram);
+            //foreach (EA.Element obj in objects)
+            //{
+            //    //logger.log("Found Object:" + obj.ElementID);
+            //    foreach (EA.Connector conn in obj.Connectors)                
+            //    {
+            //        if (DiagramManager.isVisible(conn))
+            //        {
+            //            //logger.log("Possible Root:" + conn.SupplierID);
+            //            if (!possibleRoots.ContainsKey(conn.SupplierID))
+            //                possibleRoots.Add(conn.SupplierID, conn.SupplierEnd.Role);
+            //        }                    
+            //    }
+            //}
+
+            //EA.Element clazz = null;
+            //IList<EA.Element> clazzes = MetaDataManager.diagramClasses(Repository, diagram);
+            //foreach (EA.Element diaclazz in clazzes)
+            //{                
+            //    if (possibleRoots.ContainsKey(diaclazz.ElementID))
+            //    {
+            //        //logger.log("Found root as relation from object:"+diaclazz.Name);
+            //        clazz = diaclazz;                    
+            //        nameOfGenerated = possibleRoots[diaclazz.ElementID];
+            //        break;
+            //    }
+            //    else if (diaclazz.GetStereotypeList().Contains(APIAddinClass.EA_STEREOTYPE_REQUEST))
+            //    {
+            //        clazz = diaclazz;                    
+            //        break;
+            //    }
+            //}
+            //if (clazz == null)
+            //{
+            //    MessageBox.Show("Ensure there an object linked to a class or a Request stereotyped clazz on the diagram");
+            //    return null;
+            //}
+
+
             //logger.log("Selected El:" + clazz.Name);
 
             //logger.log("Type" + clazz.Type);
 
-            if (!clazz.Type.Equals("Class"))
+            if (clazz==null || !clazz.Type.Equals("Class"))
             {
                 MessageBox.Show("Select a class");
                 return null;

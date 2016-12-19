@@ -138,6 +138,8 @@ namespace UnitTestProject1.EAFacade
             set;
         }
 
+
+
         public EA.Collection ConstraintsEx
         {
             get { throw new NotImplementedException(); }
@@ -271,17 +273,8 @@ namespace UnitTestProject1.EAFacade
             }
         }
 
-        public string Gentype
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public string Gentype { get; set; }
+        
 
         public string GetBusinessRules()
         {
