@@ -148,7 +148,7 @@ namespace APIAddIn
                 {
                     return float.Parse(value);
                 }
-                catch (FormatException e)
+                catch (FormatException)
                 {
                     return 0;// "Not a number:"+ value;
                 }

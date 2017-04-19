@@ -8,9 +8,75 @@ using Newtonsoft.Json.Schema;
 
 namespace APIAddIn
 {
+
     /* This class deals with serialization of API */
     public class APIManager
-    {        
+    {
+        static Logger logger = new Logger();
+
+        static FileManager fileManager = new FileManager(logger);
+
+        static public void setLogger(Logger l)
+        {
+            logger = l;
+            RAMLManager.setLogger(l);
+            SwaggerManager.setLogger(l);
+        }
+
+        static public void setFileManager(FileManager fm)
+        {
+            fileManager = fm;
+            RAMLManager.setFileManager(fm);
+            SwaggerManager.setFileManager(fm);
+        }
+
+        static public void exportAPI_RAML(EA.Repository Repository, EA.Diagram diagram)
+        {
+            RAMLManager.exportAPI(Repository, diagram, APIAddinClass.RAML_0_8);
+        }
+
+        static public void exportAPI_RAML1(EA.Repository Repository, EA.Diagram diagram)
+        {
+            RAMLManager.exportAPI(Repository, diagram, APIAddinClass.RAML_1_0);
+        }
+
+        static public void exportAPI_Swagger(EA.Repository Repository, EA.Diagram diagram)
+        {
+            SwaggerManager.exportAPI(Repository, diagram, APIAddinClass.RAML_1_0);
+        }
+
+        static public void validateDiagram(EA.Repository Repository, EA.Diagram diagram)
+        {
+
+        }
+    }
+
+
+    public class SwaggerManager
+    {
+        static Logger logger = new Logger();
+
+        static FileManager fileManager = new FileManager(logger);
+
+        static public void setFileManager(FileManager fm)
+        {
+            fileManager = fm;
+        }
+
+        static public void setLogger(Logger l)
+        {
+            logger = l;
+        }
+
+        static public void exportAPI(EA.Repository Repository, EA.Diagram diagram, double version)
+        {
+            logger.log("...Swagger export coming soon to an API near you");
+        }
+    }
+
+
+    public class RAMLManager
+    {
         public static string TITLE = "title";
         public static string BASEURI = "baseuri";
         public static string VERSION = "version";
@@ -19,6 +85,7 @@ namespace APIAddIn
         public static string SCHEMAS = "schemas";
         public static string DOCUMENATION = "documentation";
         public static string TRAITS = "traits";
+        public static double REIFY_VERSION = APIAddinClass.RAML_0_8;
 
         static Dictionary<string, string> schemaMapping = new Dictionary<string, string>();
 
@@ -26,42 +93,32 @@ namespace APIAddIn
 
         static FileManager fileManager = new FileManager(logger);
 
-        static public void setLogger(Logger l)
-        {
-            logger = l;
-        }
-
         static public void setFileManager(FileManager fm)
         {
             fileManager = fm;
+        }
+
+        static public void setLogger(Logger l)
+        {
+            logger = l;
         }
 
         static string nameOfTargetElement(EA.Connector con, EA.Element e, EA.Element client)
         {
             return e.Name;
         }
-      
-        static public void exportAPI(EA.Repository Repository, EA.Diagram diagram)
-        {
-            exportAPI(Repository, diagram, APIAddinClass.RAML_0_8);
-        }
-        static public void exportAPI_RAML1(EA.Repository Repository, EA.Diagram diagram)
-        {
-            exportAPI(Repository, diagram, APIAddinClass.RAML_1_0);
-        }
 
-        static public double REIFY_VERSION = APIAddinClass.RAML_0_8;
 
-        static public void exportAPI(EA.Repository Repository, EA.Diagram diagram,double version)
-        {                        
-            logger.log("Exporting an API ");
+        static public void exportAPI(EA.Repository Repository, EA.Diagram diagram, double version)
+        {
+            logger.log("Exporting an API to RAML");
 
             REIFY_VERSION = version;
 
-            EA.Element apiEl = MetaDataManager.diagramAPI(Repository,diagram);
-          
+            EA.Element apiEl = MetaDataManager.diagramAPI(Repository, diagram);
+
             DiagramManager.captureDiagramLinks(diagram);
-                       
+
             {
                 YamlMappingNode map = new YamlMappingNode();
 
@@ -76,7 +133,7 @@ namespace APIAddIn
                 StringWriter writer = new StringWriter();
                 stream.Save(writer, false/*no alias*/);
 
-                string yaml = "#%RAML "+ version.ToString("F1")+"\n" + writer.ToString();
+                string yaml = "#%RAML " + version.ToString("F1") + "\n" + writer.ToString();
 
                 EA.Package apiPackage = Repository.GetPackageByID(diagram.PackageID);
 
@@ -84,30 +141,28 @@ namespace APIAddIn
                 fileManager.setup(version);
                 fileManager.exportAPI(apiPackage.Name, version, yaml);
                 //fileManager.exportAPI(apiPackage.Name, APIAddinClass.RAML_0_8, yaml);
-                
+
                 //return map;
             }
         }
 
-        
-
         public static YamlMappingNode reifyAPI(EA.Repository Repository, EA.Element apiEl, YamlMappingNode map)
-        {            
+        {
             schemaMapping.Clear();
 
             logger.log("Reify API:" + apiEl.Name);
 
             reifyRunState(Repository, apiEl, map);
 
-            try{  map.Add("baseUri", "https://{environment}"); }catch(Exception){ /*do nothing is fine*/ }            
+            try { map.Add("baseUri", "https://{environment}"); } catch (Exception) { /*do nothing is fine*/ }
 
             YamlMappingNode bps = new YamlMappingNode();
             map.Add("baseUriParameters", bps);
             reifyEnvironment(Repository, apiEl, bps);
 
-            if (APIManager.REIFY_VERSION > APIAddinClass.RAML_0_8)
+            if (REIFY_VERSION > APIAddinClass.RAML_0_8)
             {
-                YamlMappingNode dn = new YamlMappingNode();                
+                YamlMappingNode dn = new YamlMappingNode();
                 dn.Add("extensions", "annotations.1_0.raml");
                 map.Add("uses", dn);
             }
@@ -117,10 +172,10 @@ namespace APIAddIn
                 YamlMappingNode dn = new YamlMappingNode();
                 sn.Add(dn);
                 dn.Add("title", "Description");
-                if(apiEl.Notes!=null)
+                if (apiEl.Notes != null)
                     dn.Add("content", apiEl.Notes);
             }
-            
+
 
             {
                 YamlMappingNode dn = new YamlMappingNode();
@@ -137,15 +192,15 @@ namespace APIAddIn
                 YamlScalarNode d = new YamlScalarNode("!include documentation/effort.md");
                 d.Style = ScalarStyle.Raw;
                 dn.Add("content", d);
-            }         
+            }
             map.Add("documentation", sn);
 
-            
+
             visitOutboundConnectedElements(Repository, apiEl, map, MetaDataManager.filterSecurity, nameSecurity, reifySecurity);
 
 
             YamlScalarNode t = null;
-            if(REIFY_VERSION==APIAddinClass.RAML_0_8)
+            if (REIFY_VERSION == APIAddinClass.RAML_0_8)
                 t = new YamlScalarNode("!include traits.raml");
             else
                 t = new YamlScalarNode("!include traits.1_0.raml");
@@ -156,9 +211,9 @@ namespace APIAddIn
             logger.log("Reify Resource Type");
 
             visitOutboundConnectedElements(Repository, apiEl, map, MetaDataManager.filterCommunity, nameResourceTypes, reifyResourceTypes);
-                                               
+
             YamlNode schemas = new YamlSequenceNode();
-            if(REIFY_VERSION> APIAddinClass.RAML_0_8)
+            if (REIFY_VERSION > APIAddinClass.RAML_0_8)
             {
                 schemas = new YamlMappingNode();
             }
@@ -175,7 +230,7 @@ namespace APIAddIn
             return map;
         }
 
-        static void reifyRunState(EA.Repository Repository, EA.Element e,YamlMappingNode map)
+        static void reifyRunState(EA.Repository Repository, EA.Element e, YamlMappingNode map)
         {
             logger.log("Runstate:" + e.RunState);
             Dictionary<string, RunState> rs = ObjectManager.parseRunState(e.RunState);
@@ -280,20 +335,22 @@ namespace APIAddIn
             {
                 YamlScalarNode inc = new YamlScalarNode("!include " + fileManager.schemaIncludePath("ErrorResponse"));
                 inc.Style = ScalarStyle.Raw;
-                
+
                 //Raml 0.8                
-                if(schemas.GetType() == typeof(YamlSequenceNode))
+                if (schemas.GetType() == typeof(YamlSequenceNode))
                 {
                     YamlMappingNode nd = new YamlMappingNode();
                     nd.Add("infoSchema", inc);
                     YamlSequenceNode schemasSeq = (YamlSequenceNode)schemas;
                     schemasSeq.Add(nd);
-                }else{
+                }
+                else
+                {
                     //Raml 1.0   
                     YamlMappingNode schemasMap = (YamlMappingNode)schemas;
-                    schemasMap.Add("infoSchema",inc);
-                }                
-            }          
+                    schemasMap.Add("infoSchema", inc);
+                }
+            }
         }
 
         static string namePermission(EA.Connector con, EA.Element e, EA.Element client)
@@ -303,8 +360,8 @@ namespace APIAddIn
 
         static YamlScalarNode reifyPermission(EA.Repository Repository, EA.Element e, EA.Connector con, EA.Element client)
         {
-            logger.log("Reify Permission:"+ e.Name);
-            return new YamlScalarNode(e.Name);            
+            logger.log("Reify Permission:" + e.Name);
+            return new YamlScalarNode(e.Name);
         }
 
         static YamlMappingNode reifyMethod(EA.Repository Repository, EA.Element e, EA.Connector con, EA.Element client)
@@ -316,22 +373,23 @@ namespace APIAddIn
 
             if (e.Notes != null && e.Notes.Length > 0)
                 description = e.Notes;
-            
-           
+
+
             YamlSequenceNode pms = new YamlSequenceNode();
             visitOutboundConnectedElements(Repository, e, pms, MetaDataManager.filterPermission, namePermission, reifyPermission);
-            foreach (YamlNode node in pms.Children)                
+            foreach (YamlNode node in pms.Children)
             {
                 YamlScalarNode pn = (YamlScalarNode)node;
                 String permission = pn.ToString();
                 if (REIFY_VERSION == APIAddinClass.RAML_0_8)
-                {                    
+                {
                     description += APIAddinClass.MARKDOWN_PARAGRAPH_BREAK + "The permission[" + permission + "] is required to invoke this method.";
-                }else
+                }
+                else
                 {
                     methodProps.Add("(extensions.permission)", permission);
                 }
-                
+
             }
 
             methodProps.Add("description", description);
@@ -346,9 +404,9 @@ namespace APIAddIn
                 catch (Exception)
                 {
                     //ignore on purpose
-                }                
+                }
             }
-            
+
 
             //YamlMappingNode responses = new YamlMappingNode();
             //visitOutboundConnectedElements(Repository, e, responses, MetaDataManager.filterResponse, nameOfTargetElement, reifyResponse);
@@ -391,17 +449,17 @@ namespace APIAddIn
                     YamlMappingNode contenttype = new YamlMappingNode();
                     body.Add("application/json", contenttype);
 
-                    
+
                     YamlMappingNode exampleMap = new YamlMappingNode();
-                    contenttype.Add("examples", exampleMap);                    
+                    contenttype.Add("examples", exampleMap);
                     foreach (KeyValuePair<YamlNode, YamlNode> kp in responseExamples)
                     {
-                        exampleMap.Add(kp.Key, kp.Value);                                                
+                        exampleMap.Add(kp.Key, kp.Value);
                     }
                 }
 
                 YamlMappingNode requestExamples = new YamlMappingNode();
-                visitOutboundConnectedElements(Repository, e, requestExamples, MetaDataManager.filterRequestExample, nameOfTargetElement, reifyExamples);                
+                visitOutboundConnectedElements(Repository, e, requestExamples, MetaDataManager.filterRequestExample, nameOfTargetElement, reifyExamples);
                 if (requestExamples.Children.Count > 0)
                 {
                     YamlMappingNode body = new YamlMappingNode();
@@ -417,10 +475,10 @@ namespace APIAddIn
                         exampleMap.Add(kp.Key, kp.Value);
                     }
                 }
-            }            
+            }
 
             String traits = "[";
-            YamlSequenceNode traitsMap = new YamlSequenceNode();            
+            YamlSequenceNode traitsMap = new YamlSequenceNode();
             visitOutboundConnectedElements(Repository, e, traitsMap, MetaDataManager.filterTrait, nameTrait, reifyTrait);
             if (traitsMap.Children.Count > 0)
             {
@@ -435,14 +493,14 @@ namespace APIAddIn
                 YamlScalarNode traitNode = new YamlScalarNode(traits);
                 traitNode.Style = ScalarStyle.Raw;
                 methodProps.Add("is", traitNode);
-            }            
+            }
             return methodProps;
         }
 
         static YamlSequenceNode reifyReleasePipelne(EA.Repository Repository, EA.Element e, EA.Connector con, EA.Element client)
         {
             YamlSequenceNode map = new YamlSequenceNode();
-            visitOutboundConnectedElements(false,Repository, e, map, MetaDataManager.filterEnvironment, nameMethod, reifyEnvironment);
+            visitOutboundConnectedElements(false, Repository, e, map, MetaDataManager.filterEnvironment, nameMethod, reifyEnvironment);
             return map;
         }
 
@@ -451,9 +509,9 @@ namespace APIAddIn
             return e.Name;
         }
 
-        static YamlScalarNode reifyTrait(EA.Repository Repository, EA.Element e, EA.Connector con,EA.Element client)
+        static YamlScalarNode reifyTrait(EA.Repository Repository, EA.Element e, EA.Connector con, EA.Element client)
         {
-            return e.Name;            
+            return e.Name;
         }
 
         static YamlScalarNode reifyEnvironment(EA.Repository Repository, EA.Element e, EA.Connector con, EA.Element client)
@@ -467,11 +525,11 @@ namespace APIAddIn
 
             props.Add("description", e.Notes);
 
-                       
+
             string r = e.RunState;
             Dictionary<string, RunState> rs = ObjectManager.parseRunState(r);
             foreach (string key in rs.Keys)
-            {                
+            {
                 try
                 {
                     props.Add(key, rs[key].value);
@@ -479,7 +537,7 @@ namespace APIAddIn
                 catch (Exception)
                 {
                     logger.log("Problem with adding QueryParameter RunState. The [" + key + "] already exists");
-                }                
+                }
             }
 
             YamlMappingNode props_dataitem = new YamlMappingNode();
@@ -490,18 +548,19 @@ namespace APIAddIn
             YamlScalarNode n = new YamlScalarNode("dataItem");
             if (props_dataitem.Children.TryGetValue(n, out p))
             {
-                YamlMappingNode mp = (YamlMappingNode)p;                
-                foreach (KeyValuePair<YamlNode,YamlNode> kp in mp.Children)
+                YamlMappingNode mp = (YamlMappingNode)p;
+                foreach (KeyValuePair<YamlNode, YamlNode> kp in mp.Children)
                 {
                     YamlNode existing;
                     if (props.Children.TryGetValue(kp.Key, out existing))
                     {
-                        ((YamlScalarNode)existing).Value = ((YamlScalarNode)existing).Value +" "+((YamlScalarNode)kp.Value).Value;
-                    }else
+                        ((YamlScalarNode)existing).Value = ((YamlScalarNode)existing).Value + " " + ((YamlScalarNode)kp.Value).Value;
+                    }
+                    else
                         props.Add(kp.Key, kp.Value);
                 }
             }
-           
+
             return props;
         }
 
@@ -509,8 +568,8 @@ namespace APIAddIn
         {
             YamlMappingNode props = new YamlMappingNode();
 
-        
-            if (e.Notes!=null && e.Notes.Length>0)
+
+            if (e.Notes != null && e.Notes.Length > 0)
                 props.Add("description", e.Notes);
 
             string type = SchemaManager.getDataItemType(e);
@@ -520,24 +579,25 @@ namespace APIAddIn
 
 
             if (type != null && type.Length > 0)
-            {            
+            {
                 props.Add("type", attributeSchema.Type.ToString().ToLower());
             }
-                
+
 
             string example = SchemaManager.getDataItemExample(e);
             if (example != null && example.Length > 0)
             {
-                if (attributeSchema.Type== JSchemaType.String)
+                if (attributeSchema.Type == JSchemaType.String)
                 {
                     props.Add("example", "\"" + example + "\"");
-                }else
+                }
+                else
                 {
-                    props.Add("example", example );
+                    props.Add("example", example);
                 }
             }
-                
-            
+
+
             return props;
         }
 
@@ -554,16 +614,17 @@ namespace APIAddIn
         }
 
         static YamlMappingNode reifyContentType(EA.Repository Repository, EA.Element e, EA.Connector con, EA.Element client)
-        {            
+        {
             {//new way
                 YamlMappingNode props = new YamlMappingNode();
-                YamlMappingNode props2 = new YamlMappingNode();                
+                YamlMappingNode props2 = new YamlMappingNode();
                 logger.log("reifyExamplesForContentType");
                 visitOutboundConnectedElements(Repository, e, props2, MetaDataManager.filterSample, nameSupplierRole, reifyExample);
-                if(props2.Children.Count>0){
+                if (props2.Children.Count > 0)
+                {
                     props.Add("examples", props2);
                     return props;
-                }                
+                }
             }
             {//Old Way
                 YamlMappingNode props = new YamlMappingNode();
@@ -572,7 +633,7 @@ namespace APIAddIn
                 logger.log("reifyExampleForContentType");
                 visitOutboundConnectedElements(Repository, e, props2, MetaDataManager.filterObject, nameSupplierRole, reifyExample);
                 return props;
-            }            
+            }
         }
 
         static YamlNode reifyExample(EA.Repository Repository, EA.Element e, EA.Connector con, EA.Element client)
@@ -582,11 +643,12 @@ namespace APIAddIn
             if (REIFY_VERSION == APIAddinClass.RAML_0_8)
             {
                 node = new YamlScalarNode("!include " + fileManager.sampleIncludePath(e.Name, classifier.Name));
-            }else
+            }
+            else
             {
                 node = new YamlScalarNode("!include " + fileManager.sampleIncludePath("RAML1", classifier.Name));
             }
-            
+
             node.Style = ScalarStyle.Raw;
             return node;
         }
@@ -615,14 +677,14 @@ namespace APIAddIn
             return param;
         }
 
-        static YamlNode reifyUriParameter(EA.Repository Repository, EA.Element e, EA.Connector con,EA.Element client)
+        static YamlNode reifyUriParameter(EA.Repository Repository, EA.Element e, EA.Connector con, EA.Element client)
         {
             if (!client.Name.Contains("{"))
                 return null;
-                  
+
             YamlMappingNode props = new YamlMappingNode();
 
-            if(e.Notes!=null)
+            if (e.Notes != null)
                 props.Add("description", e.Notes);
 
             string type = SchemaManager.getDataItemType(e);
@@ -650,14 +712,14 @@ namespace APIAddIn
             //}
 
             string example = SchemaManager.getDataItemExample(e);
-            if(example!=null)
+            if (example != null)
                 props.Add("example", example);
-         
+
             return props;
         }
 
         static YamlMappingNode reifyResource(EA.Repository Repository, EA.Element e, EA.Connector con, EA.Element client)
-        {            
+        {
             logger.log("Reify Resources:" + e.Name);
             YamlMappingNode resourceProps = new YamlMappingNode();
             string r = e.RunState;
@@ -666,12 +728,12 @@ namespace APIAddIn
             {
                 resourceProps.Add(key, rs[key].value);
             }
-            
-            if(e.Notes!=null && e.Notes.Length>0)
+
+            if (e.Notes != null && e.Notes.Length > 0)
                 resourceProps.Add("description", e.Notes);
 
             YamlMappingNode uriParamMap = new YamlMappingNode();
-            visitOutboundConnectedElements(Repository, e, uriParamMap, MetaDataManager.filterDataItem, nameUriParameter, reifyUriParameter);            
+            visitOutboundConnectedElements(Repository, e, uriParamMap, MetaDataManager.filterDataItem, nameUriParameter, reifyUriParameter);
             resourceProps.Add("uriParameters", uriParamMap);
 
 
@@ -682,26 +744,27 @@ namespace APIAddIn
 
             visitOutboundConnectedElements(Repository, e, types, MetaDataManager.filterTypeForResource, nameMethod, reifyTypeForResource);
 
-            if (types.Children.Count > 0) {
+            if (types.Children.Count > 0)
+            {
                 resourceProps.Add("type", types);
             }
 
             YamlMappingNode method = new YamlMappingNode();
-            visitOutboundConnectedElements(Repository, e, resourceProps, MetaDataManager.filterMethod, nameMethod, reifyMethod);                                
-                        
+            visitOutboundConnectedElements(Repository, e, resourceProps, MetaDataManager.filterMethod, nameMethod, reifyMethod);
+
             logger.log("Reified Resources:" + e.Name);
             return resourceProps;
-        }        
+        }
 
         static YamlNode reifyTypeForResource(EA.Repository Repository, EA.Element e, EA.Connector con, EA.Element client)
-        {           
+        {
             YamlMappingNode specificType = new YamlMappingNode();
 
 
-            { 
-            YamlScalarNode node = new YamlScalarNode("infoSchema");
-            node.Style = ScalarStyle.Raw;
-            specificType.Add("infoSchema", node);
+            {
+                YamlScalarNode node = new YamlScalarNode("infoSchema");
+                node.Style = ScalarStyle.Raw;
+                specificType.Add("infoSchema", node);
             }
 
             if (e.Name.Equals(APIAddinClass.RESOURCETYPE_ITEMPOST) || e.Name.Equals(APIAddinClass.RESOURCETYPE_ITEMPOST_ONEWAY) || e.Name.Equals(APIAddinClass.RESOURCETYPE_COLLECTIONGETPOST))
@@ -713,31 +776,31 @@ namespace APIAddIn
 
             logger.log("Reify Type for Resource:" + e.Name);
             visitOutboundConnectedElements(Repository, e, specificType, MetaDataManager.filterClass, nameSupplierRole, reifyTypeReference);
-           
+
             {
                 YamlScalarNode node = new YamlScalarNode("!include samples/sample400BadRequest-sample.json");
                 node.Style = ScalarStyle.Raw;
                 specificType.Add("sample400Resp", node);
-            
+
             }
             {
                 YamlScalarNode node = new YamlScalarNode("!include samples/sample401-Unauthorized-sample.json");
                 node.Style = ScalarStyle.Raw;
                 specificType.Add("sample401Resp", node);
-            }  
+            }
             {
                 YamlScalarNode node = new YamlScalarNode("!include samples/sample403-Forbidden-sample.json");
                 node.Style = ScalarStyle.Raw;
                 specificType.Add("sample403Resp", node);
-            }  
+            }
 
 
-            if(!e.Name.Equals(APIAddinClass.RESOURCETYPE_ITEMPOST_SYNC) && !e.Name.Equals(APIAddinClass.RESOURCETYPE_ITEMPOST_ONEWAY))
+            if (!e.Name.Equals(APIAddinClass.RESOURCETYPE_ITEMPOST_SYNC) && !e.Name.Equals(APIAddinClass.RESOURCETYPE_ITEMPOST_ONEWAY))
             {
                 YamlScalarNode node = new YamlScalarNode("!include samples/sample404Resp-sample.json");
                 node.Style = ScalarStyle.Raw;
                 specificType.Add("sample404Resp", node);
-            }            
+            }
             {
                 YamlScalarNode node = new YamlScalarNode("!include samples/sample405-MethodNotAllowed-sample.json");
                 node.Style = ScalarStyle.Raw;
@@ -750,7 +813,7 @@ namespace APIAddIn
             }
 
 
-            visitOutboundConnectedElements(Repository, e, specificType, MetaDataManager.filterObject, nameSupplierRole, reifyTypeSample);            
+            visitOutboundConnectedElements(Repository, e, specificType, MetaDataManager.filterObject, nameSupplierRole, reifyTypeSample);
 
             logger.log("End Reify Type for Resource:" + e.Name);
             return specificType;
@@ -758,9 +821,9 @@ namespace APIAddIn
 
         static YamlScalarNode reifyTypeReference(EA.Repository Repository, EA.Element e, EA.Connector con, EA.Element client)
         {
-            logger.log("Reify Type Reference:" + e.Name);    
-        
-            if(!schemaMapping.ContainsKey(e.Name))
+            logger.log("Reify Type Reference:" + e.Name);
+
+            if (!schemaMapping.ContainsKey(e.Name))
             {
                 System.Windows.Forms.MessageBox.Show("Schema [" + e.Name + "] is not referenced by the API");
                 return null;
@@ -769,11 +832,11 @@ namespace APIAddIn
             string reference = schemaMapping[e.Name];
             YamlScalarNode node = new YamlScalarNode(reference);
             node.Style = ScalarStyle.Raw;
-            return node;            
+            return node;
         }
 
         static YamlScalarNode reifyTypeSample(EA.Repository Repository, EA.Element e, EA.Connector con, EA.Element client)
-        {                
+        {
             EA.Element classifier = Repository.GetElementByID(e.ClassifierID);
 
             if (classifier.Name == APIAddinClass.METAMODEL_PLACEHOLDER)
@@ -787,7 +850,7 @@ namespace APIAddIn
                 YamlScalarNode node = new YamlScalarNode("!include " + fileManager.sampleIncludePath(e.Name, classifier.Name));
                 node.Style = ScalarStyle.Raw;
                 return node;
-            }                        
+            }
         }
 
         static YamlNode reifyExamples(EA.Repository Repository, EA.Element e, EA.Connector con, EA.Element client)
@@ -796,7 +859,7 @@ namespace APIAddIn
 
             YamlMappingNode example = new YamlMappingNode();
 
-            if(e.Notes!=null && e.Notes.Length>0)
+            if (e.Notes != null && e.Notes.Length > 0)
                 example.Add("description", e.Notes);
 
             YamlScalarNode node = new YamlScalarNode("!include " + fileManager.examplesPath(e.Name));
@@ -804,7 +867,7 @@ namespace APIAddIn
 
             example.Add("value", node);
 
-            return node; 
+            return node;
         }
 
 
@@ -813,33 +876,33 @@ namespace APIAddIn
         {
             logger.log("Reify ResourceTypes:" + e.Name + "-" + e.Version);
             YamlScalarNode security = null;
-            if(REIFY_VERSION==APIAddinClass.RAML_0_8)
-                security = new YamlScalarNode("!include " + e.Version+".raml");
+            if (REIFY_VERSION == APIAddinClass.RAML_0_8)
+                security = new YamlScalarNode("!include " + e.Version + ".raml");
             else
                 security = new YamlScalarNode("!include " + e.Version + ".1_0.raml");
 
             security.Style = ScalarStyle.Raw;
             return security;
 
-           // if (e.ClassifierID == 0)
-           // {
-           //     return null;
-           // }
-           // string className = Repository.GetElementByID(e.ClassifierID).Name;
-           // if (!className.Equals(APIAddinClass.METAMODEL_RESOURCETYPE))
-           // {
-           //     return null;
-           // }
-           //logger.log("Reify ResourceType:" + e.Name);
+            // if (e.ClassifierID == 0)
+            // {
+            //     return null;
+            // }
+            // string className = Repository.GetElementByID(e.ClassifierID).Name;
+            // if (!className.Equals(APIAddinClass.METAMODEL_RESOURCETYPE))
+            // {
+            //     return null;
+            // }
+            //logger.log("Reify ResourceType:" + e.Name);
 
-           // YamlScalarNode node = new YamlScalarNode("!include " + fileManager.resourceTypeIncludePath(e.Name));
-           // node.Style = ScalarStyle.Raw;
-           // return node;
+            // YamlScalarNode node = new YamlScalarNode("!include " + fileManager.resourceTypeIncludePath(e.Name));
+            // node.Style = ScalarStyle.Raw;
+            // return node;
         }
 
 
         static YamlNode reifySchema(EA.Repository Repository, EA.Element e, EA.Connector con, EA.Element client)
-        {            
+        {
             logger.log("Reify Schema:" + e.Name);
 
             YamlScalarNode inc = new YamlScalarNode("!include " + fileManager.schemaIncludePath(e.Name));
@@ -848,15 +911,16 @@ namespace APIAddIn
 
             if (REIFY_VERSION == APIAddinClass.RAML_0_8)
             {
-                YamlMappingNode map = new YamlMappingNode();                       
-                map.Add(con.SupplierEnd.Role, inc);                
+                YamlMappingNode map = new YamlMappingNode();
+                map.Add(con.SupplierEnd.Role, inc);
                 return map;
-            }else
+            }
+            else
             {
                 return inc;
             }
 
-            
+
         }
 
 
@@ -865,14 +929,14 @@ namespace APIAddIn
             return "dataItem";
         }
 
-        static string nameMethod(EA.Connector con, EA.Element e,EA.Element client)
+        static string nameMethod(EA.Connector con, EA.Element e, EA.Element client)
         {
             return e.Name;
         }
 
         static string nameSecurity(EA.Connector con, EA.Element e, EA.Element client)
         {
-            return "securitySchemes";            
+            return "securitySchemes";
         }
 
         static string nameResourceTypes(EA.Connector con, EA.Element e, EA.Element client)
@@ -888,7 +952,7 @@ namespace APIAddIn
 
         static void visitOutboundConnectedElements(EA.Repository Repository, EA.Element clientElement, YamlNode parent, Func<EA.Repository, EA.Connector, EA.Element, EA.Element, bool> filter, Func<EA.Connector, EA.Element, EA.Element, string> name, Func<EA.Repository, EA.Element, EA.Connector, EA.Element, YamlNode> properties)
         {
-            visitOutboundConnectedElements(true,Repository, clientElement, parent, filter, name, properties);
+            visitOutboundConnectedElements(true, Repository, clientElement, parent, filter, name, properties);
         }
 
         static void visitOutboundConnectedElements(bool ensureVisible, EA.Repository Repository, EA.Element clientElement, YamlNode parent, Func<EA.Repository, EA.Connector, EA.Element, EA.Element, bool> filter, Func<EA.Connector, EA.Element, EA.Element, string> name, Func<EA.Repository, EA.Element, EA.Connector, EA.Element, YamlNode> properties)
@@ -898,7 +962,7 @@ namespace APIAddIn
             {
                 //logger.log("Processing Connector:" + con.Name);
 
-                if(ensureVisible)
+                if (ensureVisible)
                     if (!DiagramManager.isVisible(con))
                         continue;
 
@@ -914,13 +978,13 @@ namespace APIAddIn
 
                     //logger.log("Classifier");
                     if (!filter(Repository, con, supplierElement, supplierClassifier))
-                        continue;                    
+                        continue;
 
                     //logger.log("Filtered");
 
                     String nm = name(con, supplierElement, clientElement);
 
-                    YamlNode o = properties(Repository, supplierElement, con,clientElement);
+                    YamlNode o = properties(Repository, supplierElement, con, clientElement);
                     if (o == null)
                     {
                         continue;
@@ -931,37 +995,34 @@ namespace APIAddIn
                         if (o.GetType().Name.StartsWith("YamlSequenceNode"))
                         {
                             YamlSequenceNode oseq = (YamlSequenceNode)o;
-                            foreach(YamlNode n in oseq.Children){
+                            foreach (YamlNode n in oseq.Children)
+                            {
                                 seq.Add(n);
                             }
                         }
                         else
                         {
-                            seq.Add(o);                                                
-                        }                        
+                            seq.Add(o);
+                        }
                     }
                     else if (parent.GetType().Name.StartsWith("YamlMappingNode"))
                     {
                         if (nm == null)
                             continue;
                         YamlMappingNode map = (YamlMappingNode)parent;
-                        try {
-                            map.Add(nm, o);        
-                        }catch (Exception ex){
-                            throw new Exception("Duplicate entry:"+ nm,ex);                            
-                        }                                                                                                    
+                        try
+                        {
+                            map.Add(nm, o);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new Exception("Duplicate entry:" + nm, ex);
+                        }
                     }
                 }
             }
             //logger.log("Processed Connections from:" + clientElement.Name);
         }
-        
 
-        static public void validateDiagram(EA.Repository Repository, EA.Diagram diagram)
-        {
-
-
-
-        }
     }
 }

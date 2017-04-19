@@ -29,7 +29,7 @@ namespace UnitTestProject1.APIModels
             
             meta.setupAPIPackage();
 
-            EAFactory factoryresult = factory.setupClient("APITitle", APIAddinClass.EA_TYPE_OBJECT, APIAddinClass.EA_STEREOTYPE_SAMPLE, meta.META_API.ElementID, new string[] { APIManager.TITLE, "APITitle", "version", "1", "baseUri", "http://localhost", "mediaType", "application/json" });
+            EAFactory factoryresult = factory.setupClient("APITitle", APIAddinClass.EA_TYPE_OBJECT, APIAddinClass.EA_STEREOTYPE_SAMPLE, meta.META_API.ElementID, new string[] { RAMLManager.TITLE, "APITitle", "version", "1", "baseUri", "http://localhost", "mediaType", "application/json" });
 
             EAFactory resource = factory.addSupplier("/resource/{id}", APIAddinClass.EA_TYPE_OBJECT, meta.META_RESOURCE.ElementID, null/*target stereotype*/, new string[] { "test", "testvalue" }/*runstate*/, "resource"/*supplierEndRole*/, ""/*relationshipName*/, null);
 
@@ -68,7 +68,7 @@ namespace UnitTestProject1.APIModels
 
             meta.setupAPIPackage();
 
-            EAFactory api = factory.setupClient("APITitle", APIAddinClass.EA_TYPE_OBJECT, APIAddinClass.EA_STEREOTYPE_SAMPLE, meta.META_API.ElementID, new string[] { APIManager.TITLE, "APITitle", "version", "1", "baseUri", "http://localhost", "mediaType", "application/json" });
+            EAFactory api = factory.setupClient("APITitle", APIAddinClass.EA_TYPE_OBJECT, APIAddinClass.EA_STEREOTYPE_SAMPLE, meta.META_API.ElementID, new string[] { RAMLManager.TITLE, "APITitle", "version", "1", "baseUri", "http://localhost", "mediaType", "application/json" });
 
             EAFactory resource = factory.addSupplier("/resource/{someuriparameter}", APIAddinClass.EA_TYPE_OBJECT, meta.META_RESOURCE.ElementID, null/*target stereotype*/, new string[] { "test", "testvalue" }/*runstate*/, "resource"/*supplierEndRole*/, ""/*relationshipName*/, null);
                       
@@ -119,7 +119,7 @@ namespace UnitTestProject1.APIModels
 
             meta.setupAPIPackage();
 
-            EAFactory factoryresult = factory.setupClient("APITitle", APIAddinClass.EA_TYPE_OBJECT, APIAddinClass.EA_STEREOTYPE_SAMPLE, meta.META_API.ElementID, new string[] { APIManager.TITLE, "APITitle", "version", "1", "baseUri", "http://localhost", "mediaType", "application/json" });
+            EAFactory factoryresult = factory.setupClient("APITitle", APIAddinClass.EA_TYPE_OBJECT, APIAddinClass.EA_STEREOTYPE_SAMPLE, meta.META_API.ElementID, new string[] { RAMLManager.TITLE, "APITitle", "version", "1", "baseUri", "http://localhost", "mediaType", "application/json" });
             
             return factoryresult;
         }
@@ -130,7 +130,7 @@ namespace UnitTestProject1.APIModels
             EAFactory api = new EAFactory();
             meta.setupAPIPackage();
 
-            api.setupClient("api", APIAddinClass.EA_TYPE_OBJECT, APIAddinClass.EA_STEREOTYPE_SAMPLE, meta.META_API.ElementID, new string[] { APIManager.TITLE, "House And Content Quotes Web API", "version", "v1511", "baseUri", "https://api.live.iag.co.nz", "mediaType", "application/json" });
+            api.setupClient("api", APIAddinClass.EA_TYPE_OBJECT, APIAddinClass.EA_STEREOTYPE_SAMPLE, meta.META_API.ElementID, new string[] { RAMLManager.TITLE, "House And Content Quotes Web API", "version", "v1511", "baseUri", "https://api.live.iag.co.nz", "mediaType", "application/json" });
 
             EAFactory resource = api.addSupplier("/quotes/home/{version}", APIAddinClass.EA_TYPE_OBJECT, meta.META_RESOURCE.ElementID, null/*target stereotype*/, new string[] { "description", "This Web API is used to submit a house and content insurance quote" }/*runstate*/, "resource"/*supplierEndRole*/, ""/*relationshipName*/, null);
 
@@ -156,7 +156,7 @@ namespace UnitTestProject1.APIModels
             EAFactory api = new EAFactory();
             meta.setupAPIPackage();
 
-            api.setupClient("api", APIAddinClass.EA_TYPE_OBJECT, APIAddinClass.EA_STEREOTYPE_SAMPLE, meta.META_API.ElementID, new string[] { APIManager.TITLE, "IAG House And Content Quotes Web API", "version", "v1511", "baseUri", "https://api.live.iag.co.nz", "mediaType", "application/json" });
+            api.setupClient("api", APIAddinClass.EA_TYPE_OBJECT, APIAddinClass.EA_STEREOTYPE_SAMPLE, meta.META_API.ElementID, new string[] { RAMLManager.TITLE, "IAG House And Content Quotes Web API", "version", "v1511", "baseUri", "https://api.live.iag.co.nz", "mediaType", "application/json" });
 
             EAFactory resource = api.addSupplier("/mom", APIAddinClass.EA_TYPE_OBJECT, meta.META_RESOURCE.ElementID, null/*target stereotype*/, new string[] { "description", "This Web API is used to submit a house and content insurance quote" }/*runstate*/, "resource"/*supplierEndRole*/, ""/*relationshipName*/, null);
 
@@ -195,7 +195,7 @@ namespace UnitTestProject1.APIModels
             
             meta.setupAPIPackage();
 
-            EAFactory factoryresult = factory.setupClient("APITitle", APIAddinClass.EA_TYPE_OBJECT, APIAddinClass.EA_STEREOTYPE_SAMPLE, meta.META_API.ElementID, new string[] { APIManager.TITLE, "APITitle", "version", "1", "baseUri", "http://localhost", "mediaType", "application/json" });
+            EAFactory factoryresult = factory.setupClient("APITitle", APIAddinClass.EA_TYPE_OBJECT, APIAddinClass.EA_STEREOTYPE_SAMPLE, meta.META_API.ElementID, new string[] { RAMLManager.TITLE, "APITitle", "version", "1", "baseUri", "http://localhost", "mediaType", "application/json" });
 
             return factoryresult;
         }

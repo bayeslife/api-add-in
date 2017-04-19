@@ -28,6 +28,7 @@ namespace APIAddIn
         const string menuExportSOA = "&ExportSOA";
         const string menuExportAPI = "&ExportAPI";
         const string menuExportAPIRAML1 = "&ExportAPI RAML1";
+        const string menuExportAPISwagger = "&ExportAPI Swagger";
         const string menuExportSchema = "&ExportSchemas";
         const string menuExportSample = "&ExportSamples";
         const string menuSyncSample = "&SyncDiagramSample";
@@ -185,7 +186,7 @@ namespace APIAddIn
                                                                 
                 case menuHeader:
                     string[] subMenusOther = { menuExportPackage,menuExportAll, menuExportDiagram, menuToggleLogging};
-                    string[] subMenusAPI = { menuExportPackage, menuExportAll, menuExportDiagram, menuExportAPI, menuExportAPIRAML1, menuValidateDiagram, menuUpdateClassFromInstance, menuUpdateInstanceFromClass, menuToggleLogging };
+                    string[] subMenusAPI = { menuExportPackage, menuExportAll, menuExportDiagram, menuExportAPI, menuExportAPIRAML1, menuExportAPISwagger, menuValidateDiagram, menuUpdateClassFromInstance, menuUpdateInstanceFromClass, menuToggleLogging };
                     string[] subMenusSOA = { menuExportPackage, menuExportSOA, menuExportDiagram, menuImportSOA };
                     string[] subMenusSchema = { menuExportPackage, menuExportAll, menuExportDiagram, menuValidateDiagram, menuExportSchema, menuCreateSample, menuUpdateClassFromInstance, menuUpdateInstanceFromClass, menuToggleLogging };
                     string[] subMenusSample = { menuExportPackage, menuExportAll, menuExportDiagram, menuExportSample, menuValidateDiagram, menuSyncSample, menuUpdateClassFromInstance, menuUpdateInstanceFromClass, menuToggleLogging };
@@ -285,7 +286,7 @@ namespace APIAddIn
                         break;
                     // there shouldn't be any other, but just in case disable it.
 
-
+                    case menuExportAPISwagger:
                     case menuExportAPI:
                     case menuExportAPIRAML1:
                         IsEnabled = false;
@@ -426,12 +427,17 @@ namespace APIAddIn
                     break;
 
                 case menuExportAPI:                    
-                    APIManager.exportAPI(Repository,diagram);
+                    APIManager.exportAPI_RAML(Repository,diagram);
                     MetaDataManager.setAsAPIDiagram(Repository, diagram);
                     break;
 
                 case menuExportAPIRAML1:
                     APIManager.exportAPI_RAML1(Repository, diagram);
+                    MetaDataManager.setAsAPIDiagram(Repository, diagram);
+                    break;
+
+                case menuExportAPISwagger:
+                    APIManager.exportAPI_Swagger(Repository, diagram);
                     MetaDataManager.setAsAPIDiagram(Repository, diagram);
                     break;
 
@@ -473,7 +479,7 @@ namespace APIAddIn
             EA.Diagram diagram = null;
             if (Repository.GetContextItemType() == ObjectType.otDiagram)
                 diagram = Repository.GetContextObject(); 
-            APIManager.exportAPI(Repository, diagram);
+            APIManager.exportAPI_RAML(Repository, diagram);
 
             EA.Package apiPackage = Repository.GetPackageByID(diagram.PackageID);
 
@@ -556,7 +562,7 @@ namespace APIAddIn
                 {
                     EA.Diagram diagram = Repository.GetDiagramByGuid(diagramId);
                     logger.log("Exporting Diagram:" + diagram.Name);
-                    APIManager.exportAPI(Repository, diagram);
+                    APIManager.exportAPI_RAML(Repository, diagram);
                     logger.log("Exported Diagram:" + diagram.Name);
                 }
             }

@@ -103,7 +103,7 @@ namespace UnitTestProject1
             YamlMappingNode map = new YamlMappingNode();
 
             //Test             
-            APIManager.reifyAPI(EARepository.Repository, api.clientElement, map);
+            RAMLManager.reifyAPI(EARepository.Repository, api.clientElement, map);
 
             YamlDocument d = new YamlDocument(map);
 
@@ -139,7 +139,7 @@ namespace UnitTestProject1
             YamlMappingNode map = new YamlMappingNode();
 
             //Test             
-            APIManager.reifyAPI(EARepository.Repository, api.clientElement, map);
+            RAMLManager.reifyAPI(EARepository.Repository, api.clientElement, map);
 
             YamlDocument d = new YamlDocument(map);
 
@@ -215,7 +215,7 @@ namespace UnitTestProject1
             YamlMappingNode map = new YamlMappingNode();
 
             //Test             
-            APIManager.reifyAPI(EARepository.Repository, api.clientElement, map);
+            RAMLManager.reifyAPI(EARepository.Repository, api.clientElement, map);
 
             YamlScalarNode mom = new YamlScalarNode();
             YamlNode momValue;
@@ -242,10 +242,10 @@ namespace UnitTestProject1
 
             YamlMappingNode map = new YamlMappingNode();
 
-            APIManager.REIFY_VERSION = APIAddinClass.RAML_1_0;
+            RAMLManager.REIFY_VERSION = APIAddinClass.RAML_1_0;
 
             //Test             
-            APIManager.reifyAPI(EARepository.Repository, api.clientElement, map);
+            RAMLManager.reifyAPI(EARepository.Repository, api.clientElement, map);
 
             YamlDocument d = new YamlDocument(map);
 
