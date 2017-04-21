@@ -167,34 +167,7 @@ namespace APIAddIn
                 map.Add("uses", dn);
             }
 
-            YamlSequenceNode sn = new YamlSequenceNode();
-            {
-                YamlMappingNode dn = new YamlMappingNode();
-                sn.Add(dn);
-                dn.Add("title", "Description");
-                if (apiEl.Notes != null)
-                    dn.Add("content", apiEl.Notes);
-            }
-
-
-            {
-                YamlMappingNode dn = new YamlMappingNode();
-                sn.Add(dn);
-                dn.Add("title", "History");
-                YamlScalarNode d = new YamlScalarNode("!include documentation/history.md");
-                d.Style = ScalarStyle.Raw;
-                dn.Add("content", d);
-            }
-            {
-                YamlMappingNode dn = new YamlMappingNode();
-                sn.Add(dn);
-                dn.Add("title", "Effort");
-                YamlScalarNode d = new YamlScalarNode("!include documentation/effort.md");
-                d.Style = ScalarStyle.Raw;
-                dn.Add("content", d);
-            }
-            map.Add("documentation", sn);
-
+            visitOutboundConnectedElements(Repository, apiEl, map, MetaDataManager.filterDocumentation, nameDocumentation, reifyDocumentation);
 
             visitOutboundConnectedElements(Repository, apiEl, map, MetaDataManager.filterSecurity, nameSecurity, reifySecurity);
 
@@ -268,6 +241,25 @@ namespace APIAddIn
             environment.Add("enum", d);
         }
 
+        static YamlNode reifyDocumentation(EA.Repository Repository, EA.Element e, EA.Connector con, EA.Element client)
+        {
+            logger.log("Reify Documentation:" + e.Name + "-" + e.Version);
+            YamlSequenceNode sn = new YamlSequenceNode();
+            Dictionary<string, RunState> elementRS = ObjectManager.parseRunState(e.RunState);
+
+            foreach (string key in elementRS.Keys)
+            {
+                YamlMappingNode docNode = new YamlMappingNode();
+                sn.Add(docNode);
+                YamlScalarNode docObjectAttribute = new YamlScalarNode(elementRS[key].value);
+                docObjectAttribute.Style = ScalarStyle.Raw;
+                docNode.Add("title", key);
+                docNode.Add("content", docObjectAttribute);
+            }
+
+            return sn;
+        }
+
         static YamlNode reifySecurity(EA.Repository Repository, EA.Element e, EA.Connector con, EA.Element client)
         {
             logger.log("Reify Security:" + e.Name + "-" + e.Version);
@@ -288,8 +280,7 @@ namespace APIAddIn
             else
             {
                 // Security schemes is a sequence in RAML
-                YamlSequenceNode security = null;
-                security = new YamlSequenceNode();
+                YamlSequenceNode security = new YamlSequenceNode();
 
                 // Security scheme attributes as a map
                 YamlMappingNode securityObject = new YamlMappingNode();
@@ -297,8 +288,8 @@ namespace APIAddIn
                 YamlMappingNode securityAttributes = new YamlMappingNode();
                 securityObject.Add(e.Name, securityAttributes);
 
-                // Manually add the element classifier name as the security type (must match securedBy in traits)
-                securityAttributes.Add("type", Repository.GetElementByID(e.ClassifierID).Name);
+                // Add security scheme attributes
+                // The element classifier type must match securedBy in traits
                 foreach (string key in rs.Keys)
                 {
                     YamlScalarNode securityAttribute = new YamlScalarNode(rs[key].value);
@@ -943,7 +934,10 @@ namespace APIAddIn
         {
             return "resourceTypes";
         }
-
+        static string nameDocumentation(EA.Connector con, EA.Element e, EA.Element client)
+        {
+            return "documentation";
+        }
         static string nameSupplierRole(EA.Connector con, EA.Element e, EA.Element client)
         {
             EA.ConnectorEnd end = con.SupplierEnd;

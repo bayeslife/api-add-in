@@ -86,6 +86,7 @@ namespace APIAddIn
         public static string METAMODEL_RESPONSE = "Response";
         public static string METAMODEL_RESOURCE = "Resource";
         public static string METAMODEL_RESOURCETYPE = "ResourceType";
+        public static string METAMODEL_DOCUMENTATION = "Documentation";
         public static string METAMODEL_ITEMGET = "ItemGet";
         public static string METAMODEL_SECURITYSCHEME = "SecurityScheme";
         public static string METAMODEL_QUERY_PARAMETER = "QueryParameter";

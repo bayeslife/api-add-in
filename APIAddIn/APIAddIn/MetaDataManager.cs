@@ -145,7 +145,12 @@ namespace APIAddIn
                 return true;
             return false;
         }
-
+        public static bool filterDocumentation(EA.Repository Repository, EA.Connector con, EA.Element e, EA.Element classifier)
+        {
+            if (classifier != null && classifier.Name.Equals(APIAddIn.APIAddinClass.METAMODEL_DOCUMENTATION))
+                return true;
+            return false;
+        }
         public static bool filterSecurity(EA.Repository Repository, EA.Connector con, EA.Element e, EA.Element classifier)
         {
             if (classifier == null)
