@@ -171,15 +171,7 @@ namespace APIAddIn
 
             visitOutboundConnectedElements(Repository, apiEl, map, MetaDataManager.filterSecurity, nameSecurity, reifySecurity);
 
-
-            YamlScalarNode t = null;
-            if (REIFY_VERSION == APIAddinClass.RAML_0_8)
-                t = new YamlScalarNode("!include traits.raml");
-            else
-                t = new YamlScalarNode("!include traits.1_0.raml");
-
-            t.Style = ScalarStyle.Raw;
-            map.Add("traits", t);
+            visitOutboundConnectedElements(Repository, apiEl, map, MetaDataManager.filterMethodTraits, nameMethodTraits, reifyMethodTraits);
 
             logger.log("Reify Resource Type");
 
@@ -259,6 +251,29 @@ namespace APIAddIn
 
             return sn;
         }
+
+        static YamlNode reifyMethodTraits(EA.Repository Repository, EA.Element e, EA.Connector con, EA.Element client)
+        {
+            // If there is a traits value in the runstate then use that
+            Dictionary<string, RunState> rs = ObjectManager.parseRunState(e.RunState);
+            if (rs.ContainsKey("traits"))
+            {
+                YamlScalarNode traits = new YamlScalarNode("!include " + rs["traits"].value + ".raml");
+                traits.Style = ScalarStyle.Raw;
+                return traits;
+            }
+
+            YamlScalarNode t = null;
+            if (REIFY_VERSION == APIAddinClass.RAML_0_8)
+                t = new YamlScalarNode("!include traits.raml");
+            else
+                t = new YamlScalarNode("!include traits.1_0.raml");
+
+            t.Style = ScalarStyle.Raw;
+            //map.Add("traits", t);
+            return t;
+        }
+
 
         static YamlNode reifySecurity(EA.Repository Repository, EA.Element e, EA.Connector con, EA.Element client)
         {
@@ -866,6 +881,16 @@ namespace APIAddIn
         static YamlScalarNode reifyResourceTypes(EA.Repository Repository, EA.Element e, EA.Connector con, EA.Element client)
         {
             logger.log("Reify ResourceTypes:" + e.Name + "-" + e.Version);
+
+            // If there is a resourceTypes value in the runstate then use that
+            Dictionary<string, RunState> rs = ObjectManager.parseRunState(e.RunState);
+            if( rs.ContainsKey("resourceTypes") ){
+                YamlScalarNode resourceTypes = new YamlScalarNode("!include " + rs["resourceTypes"].value + ".raml");
+                resourceTypes.Style = ScalarStyle.Raw;
+                return resourceTypes;
+            }
+
+            // Otherwise use the value from the objects Version attribute
             YamlScalarNode security = null;
             if (REIFY_VERSION == APIAddinClass.RAML_0_8)
                 security = new YamlScalarNode("!include " + e.Version + ".raml");
@@ -875,20 +900,6 @@ namespace APIAddIn
             security.Style = ScalarStyle.Raw;
             return security;
 
-            // if (e.ClassifierID == 0)
-            // {
-            //     return null;
-            // }
-            // string className = Repository.GetElementByID(e.ClassifierID).Name;
-            // if (!className.Equals(APIAddinClass.METAMODEL_RESOURCETYPE))
-            // {
-            //     return null;
-            // }
-            //logger.log("Reify ResourceType:" + e.Name);
-
-            // YamlScalarNode node = new YamlScalarNode("!include " + fileManager.resourceTypeIncludePath(e.Name));
-            // node.Style = ScalarStyle.Raw;
-            // return node;
         }
 
 
@@ -929,7 +940,10 @@ namespace APIAddIn
         {
             return "securitySchemes";
         }
-
+        static string nameMethodTraits(EA.Connector con, EA.Element e, EA.Element client)
+        {
+            return "traits";
+        }
         static string nameResourceTypes(EA.Connector con, EA.Element e, EA.Element client)
         {
             return "resourceTypes";
@@ -944,13 +958,14 @@ namespace APIAddIn
             return end.Role;
         }
 
-        static void visitOutboundConnectedElements(EA.Repository Repository, EA.Element clientElement, YamlNode parent, Func<EA.Repository, EA.Connector, EA.Element, EA.Element, bool> filter, Func<EA.Connector, EA.Element, EA.Element, string> name, Func<EA.Repository, EA.Element, EA.Connector, EA.Element, YamlNode> properties)
+        static int visitOutboundConnectedElements(EA.Repository Repository, EA.Element clientElement, YamlNode parent, Func<EA.Repository, EA.Connector, EA.Element, EA.Element, bool> filter, Func<EA.Connector, EA.Element, EA.Element, string> name, Func<EA.Repository, EA.Element, EA.Connector, EA.Element, YamlNode> properties)
         {
-            visitOutboundConnectedElements(true, Repository, clientElement, parent, filter, name, properties);
+            return visitOutboundConnectedElements(true, Repository, clientElement, parent, filter, name, properties);
         }
 
-        static void visitOutboundConnectedElements(bool ensureVisible, EA.Repository Repository, EA.Element clientElement, YamlNode parent, Func<EA.Repository, EA.Connector, EA.Element, EA.Element, bool> filter, Func<EA.Connector, EA.Element, EA.Element, string> name, Func<EA.Repository, EA.Element, EA.Connector, EA.Element, YamlNode> properties)
+        static int visitOutboundConnectedElements(bool ensureVisible, EA.Repository Repository, EA.Element clientElement, YamlNode parent, Func<EA.Repository, EA.Connector, EA.Element, EA.Element, bool> filter, Func<EA.Connector, EA.Element, EA.Element, string> name, Func<EA.Repository, EA.Element, EA.Connector, EA.Element, YamlNode> properties)
         {
+            int outboundCount = 0;
             //logger.log("Processing Connections from:" + clientElement.Name);           
             foreach (EA.Connector con in clientElement.Connectors)
             {
@@ -973,6 +988,8 @@ namespace APIAddIn
                     //logger.log("Classifier");
                     if (!filter(Repository, con, supplierElement, supplierClassifier))
                         continue;
+
+                    outboundCount += 1;
 
                     //logger.log("Filtered");
 
@@ -1016,6 +1033,7 @@ namespace APIAddIn
                 }
             }
             //logger.log("Processed Connections from:" + clientElement.Name);
+            return outboundCount;
         }
 
     }
