@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("IAGAddIn")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("APIAddIn")]
+[assembly: AssemblyDescription("Sparx EA AddIn for API Definition")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("IAGAddIn")]
+[assembly: AssemblyCompany("https://github.com/bayeslife/api-add-in")]
+[assembly: AssemblyProduct("APIAddIn")]
 [assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

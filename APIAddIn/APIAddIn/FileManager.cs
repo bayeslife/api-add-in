@@ -9,7 +9,7 @@ namespace APIAddIn
     /* This class manages the writing of documents to the file system */
     public class FileManager
     {
-        public string path = "d:\\generated2";
+        public string path = "d:\\generated";
         public string diagrampath = "d:\\tmp";
 
         Logger logger = null;
