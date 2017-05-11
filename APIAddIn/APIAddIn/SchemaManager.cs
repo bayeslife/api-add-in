@@ -502,7 +502,7 @@ namespace APIAddIn
                 
                 fileManager.initializeAPI(sourcecontrolPackage);
                 fileManager.setup(APIAddinClass.RAML_0_8);
-                fileManager.exportSchema(container.Value.Title, msg);                
+                fileManager.exportSchema(container.Value.Title, msg, fileManager.getNamespace(Repository, schemaPkg));                
             }
             else
             {                

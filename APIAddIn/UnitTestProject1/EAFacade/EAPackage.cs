@@ -186,17 +186,8 @@ namespace UnitTestProject1.EAFacade
             get { throw new NotImplementedException(); }
         }
 
-        public bool IsNamespace
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public bool IsNamespace { get; set; }
+
 
         public bool IsProtected
         {

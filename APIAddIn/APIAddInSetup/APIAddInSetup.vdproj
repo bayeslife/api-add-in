@@ -21,6 +21,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_4BA408D0E175B9EC15B053481F113B76"
+        "OwnerKey" = "8:_70B993BFAAC940C8AF7B7497FB7FEF90"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_67069573608A4CDCBBAEF0B640511F06"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -45,12 +51,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_9B1B2F50AE4B905224072818EE7B034D"
-        "OwnerKey" = "8:_70B993BFAAC940C8AF7B7497FB7FEF90"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_9DCF043E5C097E5D2248D46D9AE52678"
         "OwnerKey" = "8:_70B993BFAAC940C8AF7B7497FB7FEF90"
         "MsmSig" = "8:_UNDEFINED"
@@ -69,12 +69,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_B56828EE05F64AB3BD24C87FE025B994"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_F4EE60A0DEAEB38811B7E23C2D1EDE48"
         "OwnerKey" = "8:_70B993BFAAC940C8AF7B7497FB7FEF90"
         "MsmSig" = "8:_UNDEFINED"
@@ -83,6 +77,12 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_70B993BFAAC940C8AF7B7497FB7FEF90"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_4BA408D0E175B9EC15B053481F113B76"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -107,12 +107,6 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_F4EE60A0DEAEB38811B7E23C2D1EDE48"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_9B1B2F50AE4B905224072818EE7B034D"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -152,6 +146,14 @@
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.5"
+                    {
+                    "Name" = "8:Microsoft .NET Framework 4.5 (x86 and x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.5"
+                    }
+                }
             }
         }
         "Release"
@@ -346,6 +348,37 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_4BA408D0E175B9EC15B053481F113B76"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:YamlDotNet, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_4BA408D0E175B9EC15B053481F113B76"
+                    {
+                    "Name" = "8:YamlDotNet.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:YamlDotNet.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_23A3794DADFB48D59AE660867C994326"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_67069573608A4CDCBBAEF0B640511F06"
             {
             "AssemblyRegister" = "3:1"
@@ -391,37 +424,6 @@
                     }
                 }
             "SourcePath" = "8:System.Xml.Serialization.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_23A3794DADFB48D59AE660867C994326"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_9B1B2F50AE4B905224072818EE7B034D"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:YamlDotNet, Version=0.0.1.0, Culture=neutral, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_9B1B2F50AE4B905224072818EE7B034D"
-                    {
-                    "Name" = "8:YamlDotNet.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:YamlDotNet.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_23A3794DADFB48D59AE660867C994326"
@@ -501,26 +503,6 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B56828EE05F64AB3BD24C87FE025B994"
-            {
-            "SourcePath" = "8:C:\\temp\\SparxEA_AddIn.reg"
-            "TargetName" = "8:SparxEA_AddIn.reg"
-            "Tag" = "8:"
-            "Folder" = "8:_23A3794DADFB48D59AE660867C994326"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_F4EE60A0DEAEB38811B7E23C2D1EDE48"
             {
             "AssemblyRegister" = "3:1"
@@ -560,7 +542,7 @@
         {
             "{3C67513D-01DD-4637-8A68-80971EB9504F}:_23A3794DADFB48D59AE660867C994326"
             {
-            "DefaultLocation" = "8:[ProgramFiles64Folder][Manufacturer]\\[ProductName]"
+            "DefaultLocation" = "8:[ProgramFilesFolder][Manufacturer]\\[ProductName]"
             "Name" = "8:#1925"
             "AlwaysCreate" = "11:FALSE"
             "Condition" = "8:"
@@ -609,7 +591,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:APIAddIn"
         "ProductCode" = "8:{7FA31098-3875-4CC7-AA7C-407FE3BA57C9}"
-        "PackageCode" = "8:{2F878512-0C14-4B55-A147-AD75AF2AE0BC}"
+        "PackageCode" = "8:{BE4F23C9-8497-4AD9-9042-F6F90C430BDE}"
         "UpgradeCode" = "8:{8E812188-568E-46A2-8C62-5126307BAB57}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -630,7 +612,7 @@
         "ARPIconIndex" = "3:0"
         "SearchPath" = "8:"
         "UseSystemSearchPath" = "11:TRUE"
-        "TargetPlatform" = "3:1"
+        "TargetPlatform" = "3:0"
         "PreBuildEvent" = "8:"
         "PostBuildEvent" = "8:"
         "RunPostBuildEvent" = "3:0"
@@ -1208,7 +1190,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_856353650B0C47C9AC6F5495E958211E"
             {
-            "SourcePath" = "8:..\\YamlDotNet\\obj\\Release-Unsigned\\YamlDotNet.dll"
+            "SourcePath" = "8:..\\YamlDotNet\\obj\\Release-UnitySubset-v35\\YamlDotNet.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_23A3794DADFB48D59AE660867C994326"
