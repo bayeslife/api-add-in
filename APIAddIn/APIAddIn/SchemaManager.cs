@@ -226,6 +226,9 @@ namespace APIAddIn
                     }
                 }
 
+                JObject schemaExtend = new JObject();
+                schema.ExtensionData.Add("references",schemaExtend);
+
                 logger.log("Visiting all connections");
                 foreach (EA.Connector con in clazz.Connectors)
                 {                    
@@ -270,6 +273,7 @@ namespace APIAddIn
                                             };
                                             logger.log("Adding:" + con.SupplierEnd.Role + " as array ");
                                             schema.Properties.Add(con.SupplierEnd.Role, arraySchema);
+                                            schemaExtend.Add(related.Name, schemaRelated);
                                         }
                                         else if (con.Stereotype != null && con.Stereotype.Equals(APIAddinClass.EA_STEREOTYPE_EMBEDDED))
                                         {
