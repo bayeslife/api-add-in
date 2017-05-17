@@ -20,7 +20,7 @@ namespace UnitTestProject1
             EAMetaModel meta = new EAMetaModel().setupSOAPackage();
 
 
-            String filename = @"D:\SOA\Modelling\Schema\CommunicationManagement_implementation_v1_datarich.wsdl";
+            string filename = @"..\..\Resources\service.wsdl";
 
             WSDLManager mgr = new WSDLManager();
 
@@ -62,7 +62,7 @@ namespace UnitTestProject1
             ServiceDescription sd = mgr.exportWSDL(EARepository.Repository, component);
 
 
-            sd.Write(@"D:\tmp\service.wsdl");
+            sd.Write(@"service.wsdl");
 
             Assert.IsNotNull(sd);
             Assert.AreEqual(1, sd.PortTypes.Count);

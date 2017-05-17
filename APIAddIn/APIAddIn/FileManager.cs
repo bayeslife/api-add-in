@@ -9,7 +9,7 @@ namespace APIAddIn
     /* This class manages the writing of documents to the file system */
     public class FileManager
     {
-        public string path = "d:\\generated2";
+        public string path = "d:\\generated";
         public string diagrampath = "d:\\tmp";
 
         Logger logger = null;
@@ -32,25 +32,60 @@ namespace APIAddIn
             this.diagrampath = path;
         }
 
-        public string apiDirectoryPath(string apiName,double version)
+        public string getNamespace(EA.Repository Repository, EA.Package package)
+        {
+            EA.Package p = package;
+            List<string> namespaceList = new List<string>();
+            String res = "";
+
+            bool done = false;
+            while ( !done )
+            {
+                if (p != null)
+                {
+                    namespaceList.Insert(0, p.Name);
+                    if ( p.IsNamespace == true)
+                        done = true;
+                    if (p.ParentID != 0)
+                        p = Repository.GetPackageByID(p.ParentID);
+                    else
+                        return "";
+                }
+                else
+                    done = true;
+            }
+
+            foreach(string s in namespaceList) {
+                res = res + (s + @"\");
+            }
+
+            return res;
+        }
+
+        public string apiDirectoryPath(string apiName,double version, string namespacePath)
         {
             string result;
+            string pathBase;
+
+            if (namespacePath != "")
+                pathBase = path + @"\" + namespacePath;
+            else
+                pathBase = path + @"\" + apiName;
+
             if (version == APIAddinClass.RAML_0_8)
-                result = path + @"\" + apiName+ @"\src\main\api\";
+                result = pathBase + @"\src\main\api\";
             else
             {
                 String versionName = version.ToString("F1");
-                result = path + @"\" + apiName + @"\src\main\api\";
-                //result = path + @"\" + apiName + @"\src\main\api-" + versionName + @"\";
+                result = pathBase + @"\src\main\api\";
             }
-                
-            //if (logger != null)
-            //    logger.log("FilePath:" + result);
+
             return result;
         }
-        public string apiPath(string apiName,double version)
+        public string apiPath(string apiName,double version, string namespacePath)
         {
-            string result = apiDirectoryPath(apiName, version);
+            string result = apiDirectoryPath(apiName, version, namespacePath);
+            System.IO.Directory.CreateDirectory(result);
             if (version == APIAddinClass.RAML_0_8)
                 result =  result + "api.raml";
             else
@@ -58,10 +93,8 @@ namespace APIAddIn
                 String versionName = version.ToString("F1");
                 result = result + "api-" + versionName + ".raml";
             }
-                
-                ////if (logger != null)
-                ////    logger.log("FilePath:" + result);
-                return result;
+
+            return result;
         }
 
         public string diagramPath(string page, string name)
@@ -72,9 +105,11 @@ namespace APIAddIn
             return result;
         }
 
-        public string samplePath(string sampleName,string classifierName)
+        public string samplePath(string sampleName,string classifierName, string namespacePath)
         {
-            string result = apiDirectoryPath(apiPackageName, APIAddinClass.RAML_0_8) + @"samples\" + sampleName + "-sample."+classifierName+".json";
+            string result = apiDirectoryPath(sampleName, APIAddinClass.RAML_0_8, namespacePath) + @"samples\";
+            System.IO.Directory.CreateDirectory(result);
+            result += sampleName + "-sample." + classifierName + ".json";
             if (logger != null)
                 logger.log("FilePath:" + result);
             return result;
@@ -100,9 +135,11 @@ namespace APIAddIn
                 logger.log("FilePath:" + result);
             return result;
         }
-        public string schemaPath(string schemaName)
+        public string schemaPath(string schemaName, string namespacePath)
         {
-            string result = apiDirectoryPath(apiPackageName, APIAddinClass.RAML_0_8) + @"schemas\" + schemaName + ".json";
+            string result = apiDirectoryPath(schemaName, APIAddinClass.RAML_0_8, namespacePath) + @"schemas\";
+            System.IO.Directory.CreateDirectory(result);
+            result += schemaName + ".json";
             if (logger != null)
                 logger.log("FilePath:" + result);
             return result;
@@ -125,7 +162,7 @@ namespace APIAddIn
 
         public void setup(double version)
         {
-            string directorypath = apiDirectoryPath(this.apiPackageName,version);
+            string directorypath = apiDirectoryPath(this.apiPackageName,version,"");
             //if (logger != null)
             //    logger.log("Creating directory:" + directorypath);
             System.IO.Directory.CreateDirectory(directorypath);
@@ -141,31 +178,31 @@ namespace APIAddIn
             this.apiPackageName = apiPkg;
         }
 
-        public bool sampleExists(string sampleName,string classifierName)
+        public bool sampleExists(string sampleName,string classifierName, string namespacePath)
         {
-            return System.IO.File.Exists(samplePath(sampleName,classifierName));
+            return System.IO.File.Exists(samplePath(sampleName,classifierName, namespacePath));
         }
-        public bool schemaExists(string schemaName)
+        public bool schemaExists(string schemaName, string namespacePath)
         {
-            return System.IO.File.Exists(schemaPath(schemaName));
+            return System.IO.File.Exists(schemaPath(schemaName, namespacePath));
         }
-        public void exportAPI(string apiName, double version,string content)
+        public void exportAPI(string apiName, double version,string content, string namespacePath)
         {
-            string fullpath = apiPath(apiName,version);
+            string fullpath = apiPath(apiName,version, namespacePath);
             if(logger!=null)
                 logger.log(fullpath);
             System.IO.File.WriteAllText(fullpath, content);
         }
-        public void exportSchema(string schemaName, string content)
+        public void exportSchema(string schemaName, string content, string namespacePath)
         {
-            string fullpath = schemaPath(schemaName);
+            string fullpath = schemaPath(schemaName, namespacePath);
                 if(logger!=null)
             logger.log(fullpath);
             System.IO.File.WriteAllText(fullpath, content);
         }
-        public void exportSample(string sampleName, string classifierName,string content)
+        public void exportSample(string sampleName, string classifierName,string content, string namespacePath)
         {
-            string fullpath = samplePath(sampleName,classifierName);
+            string fullpath = samplePath(sampleName,classifierName, namespacePath);
             if(logger!=null)
                 logger.log(fullpath);
             System.IO.File.WriteAllText(fullpath, content);

@@ -125,9 +125,10 @@ namespace UnitTestProject1
             Assert.IsTrue(yaml.Contains("data_item_description"));
 
             FileManager fileManager = new FileManager(null);
+            fileManager.setBasePath(".");
             fileManager.initializeAPI(EARepository.currentPackage.Name);
             fileManager.setup(APIAddinClass.RAML_0_8);
-            fileManager.exportAPI(EARepository.currentPackage.Name, APIAddinClass.RAML_0_8,  yaml.ToString());
+            fileManager.exportAPI(EARepository.currentPackage.Name, APIAddinClass.RAML_0_8,  yaml.ToString(), "");
         }
 
         [TestMethod]
@@ -152,9 +153,10 @@ namespace UnitTestProject1
             string yaml = writer.ToString();
 
             FileManager fileManager = new FileManager(null);
+            fileManager.setBasePath(".");
             fileManager.initializeAPI(EARepository.currentPackage.Name);
             fileManager.setup(APIAddinClass.RAML_0_8);
-            fileManager.exportAPI(EARepository.currentPackage.Name, APIAddinClass.RAML_0_8,yaml);
+            fileManager.exportAPI(EARepository.currentPackage.Name, APIAddinClass.RAML_0_8,yaml, "");
         }
 
         [TestMethod]
@@ -267,9 +269,10 @@ namespace UnitTestProject1
             Assert.IsTrue(yaml.Contains("data_item_description"));
 
             FileManager fileManager = new FileManager(null);
+            fileManager.setBasePath(".");
             fileManager.initializeAPI(EARepository.currentPackage.Name);
             fileManager.setup(APIAddinClass.RAML_0_8);
-            fileManager.exportAPI(EARepository.currentPackage.Name, APIAddinClass.RAML_0_8, yaml.ToString());
+            fileManager.exportAPI(EARepository.currentPackage.Name, APIAddinClass.RAML_0_8, yaml.ToString(), "");
         }
     }
 }

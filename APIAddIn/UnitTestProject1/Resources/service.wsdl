@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<definitions xmlns:iaa="http://www.iag.co.nz/soa/iagiaa/v2" xmlns:soa="http://usermodel.namespace" xmlns:fault="http://www.iag.co.nz/soa/iagiaa/fault" name="CommunicationManagement" targetNamespace="http://usermodel.namespace" xmlns="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" />
+  <types>
+    <schema elementFormDefault="qualified" targetNamespace="http://usermodel.namespace" xmlns="http://www.w3.org/2001/XMLSchema">
+      <import schemaLocation="iagiaa_.xsd" namespace="http://www.iag.co.nz/soa/iagiaa/v2" />
+      <import schemaLocation="iagiaa_fault.xsd" namespace="http://www.iag.co.nz/soa/iagiaa/fault" />
+    </schema>
+  </types>
+  <message name="ErrorInfo">
+    <part name="ErrorInfo" element="fault:ErrorInfo" />
+  </message>
+  <message name="DoSomething1SoapIn">
+    <part name="Header" element="iaa:ApplicationContext" />
+    <part name="DoSomething1Part" element="soa:DoSomething1" />
+  </message>
+  <message name="DoSomething1SoapOut">
+    <part name="DoSomething1ResponsePart" element="soa:DoSomething1Response" />
+  </message>
+  <message name="DoSomething2SoapIn">
+    <part name="Header" element="iaa:ApplicationContext" />
+    <part name="DoSomething2Part" element="soa:DoSomething2" />
+  </message>
+  <message name="DoSomething2SoapOut">
+    <part name="DoSomething2ResponsePart" element="soa:DoSomething2Response" />
+  </message>
+  <portType name="CommunicationManagement">
+    <operation name="DoSomething1">
+      <input message="soa:CommunicationManagementSoapIn" />
+      <output message="soa:CommunicationManagementSoapOut" />
+      <fault name="ErrorInfo" message="soa:ErrorInfo" />
+    </operation>
+    <operation name="DoSomething2">
+      <input message="soa:CommunicationManagementSoapIn" />
+      <output message="soa:CommunicationManagementSoapOut" />
+      <fault name="ErrorInfo" message="soa:ErrorInfo" />
+    </operation>
+  </portType>
+  <binding name="CommunicationManagement" type="soa:CommunicationManagement">
+    <binding transport="http://schemas.xmlsoap.org/soap/http" xmlns="http://schemas.xmlsoap.org/wsdl/soap12/" />
+    <operation>
+      <input>
+        <header message="soa:DoSomething1SoapIn" part="Header" use="literal" xmlns="http://schemas.xmlsoap.org/wsdl/soap/" />
+        <body parts="DoSomething1Part" xmlns="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </input>
+      <output>
+        <body use="literal" xmlns="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </output>
+      <fault name="ErrorResponseType">
+        <fault use="literal" namespace="" xmlns="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+    </operation>
+    <operation>
+      <input>
+        <header message="soa:DoSomething2SoapIn" part="Header" use="literal" xmlns="http://schemas.xmlsoap.org/wsdl/soap/" />
+        <body parts="DoSomething2Part" xmlns="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </input>
+      <output>
+        <body use="literal" xmlns="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </output>
+      <fault name="ErrorResponseType">
+        <fault use="literal" namespace="" xmlns="http://schemas.xmlsoap.org/wsdl/soap/" />
+      </fault>
+    </operation>
+  </binding>
+</definitions>

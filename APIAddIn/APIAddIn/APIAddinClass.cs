@@ -594,7 +594,7 @@ namespace APIAddIn
 
         //public List<string> queryAPIDiagrams2(EA.Repository Repository)
         //{
-            
+
         //}
 
         //public List<string> queryAPIDiagrams2(EA.Repository Repository)
@@ -610,7 +610,6 @@ namespace APIAddIn
         //    }
         //    return result;
         //}
-    
 
         private void callWeb(EA.Repository Repository)
         {

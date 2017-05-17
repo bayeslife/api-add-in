@@ -139,7 +139,7 @@ namespace APIAddIn
 
                 fileManager.initializeAPI(apiPackage.Name);
                 fileManager.setup(version);
-                fileManager.exportAPI(apiPackage.Name, version, yaml);
+                fileManager.exportAPI(apiPackage.Name, version, yaml, fileManager.getNamespace(Repository, apiPackage));
                 //fileManager.exportAPI(apiPackage.Name, APIAddinClass.RAML_0_8, yaml);
 
                 //return map;

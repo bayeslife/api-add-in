@@ -55,14 +55,14 @@ namespace APIAddIn
             if(fileManager!=null){
                 fileManager.initializeAPI(apiPackage.Name);
                 fileManager.setup(APIAddinClass.RAML_0_8);
-                if (!fileManager.sampleExists(container.Name, containerClassifier))
+                if (!fileManager.sampleExists(container.Name, containerClassifier, fileManager.getNamespace(Repository, apiPackage)))
                 {
-                    MessageBox.Show("No file exists at:" + fileManager.samplePath(container.Name,containerClassifier));
+                    MessageBox.Show("No file exists at:" + fileManager.samplePath(container.Name,containerClassifier, fileManager.getNamespace(Repository, apiPackage)));
                     return;
                 }
                 else
                 {
-                    string fullpath = fileManager.samplePath(containerName,containerClassifier);
+                    string fullpath = fileManager.samplePath(containerName,containerClassifier, fileManager.getNamespace(Repository, apiPackage));
                     JObject jo = JObject.Parse(File.ReadAllText(fullpath));
                     sync_sample(Repository, container, jo);
                 }
@@ -486,7 +486,7 @@ namespace APIAddIn
                 {
                     fileManager.initializeAPI(sourcecontrolPackage);
                     fileManager.setup(APIAddinClass.RAML_0_8);
-                    fileManager.exportSample(sample,clazz, msg);
+                    fileManager.exportSample(sample,clazz, msg, fileManager.getNamespace(Repository, samplesPackage));
                 }            
         }        
 
